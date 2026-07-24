@@ -1,0 +1,20 @@
+# Godot 4
+.godot/
+*.translation
+export_presets.cfg
+export/
+
+# Builds
+*.exe
+*.pck
+*.zip
+*.dmg
+*.x86_64
+
+# Aseprite backups
+*.aseprite-backup
+
+# SO
+Thumbs.db
+.DS_Store
+desktop.ini
