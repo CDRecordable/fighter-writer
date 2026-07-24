@@ -1,7 +1,7 @@
 class_name FighterStats
 extends RefCounted
 ## Todo lo que define a un luchador: constantes de movimiento, cajas por
-## defecto y su repertorio de movimientos.
+## defecto, repertorio de movimientos y proyectiles.
 ##
 ## Las velocidades llegan del JSON en píxeles por tick (a 60 ticks/s) y se
 ## guardan ya convertidas a punto fijo, porque es la unidad en la que trabaja
@@ -28,6 +28,14 @@ var crouch_hurtbox: BoxData = null
 
 ## StringName -> MoveData
 var moves: Dictionary = {}
+## StringName -> ProjectileData
+var projectiles: Dictionary = {}
+
+## Los movimientos que se invocan con dirección + botón (súper, especiales,
+## agarres), ya ordenados por dificultad de entrada. El orden importa: si un
+## 236 se probara antes que el 236236 que lo contiene, el súper no saldría
+## nunca.
+var command_moves: Array[MoveData] = []
 
 
 static func from_dict(d: Dictionary) -> FighterStats:
@@ -55,12 +63,32 @@ static func from_dict(d: Dictionary) -> FighterStats:
 	for move_id: String in raw_moves.keys():
 		var raw: Variant = raw_moves[move_id]
 		if raw is Dictionary:
-			stats.moves[StringName(move_id)] = MoveData.from_dict(StringName(move_id), raw)
+			var move := MoveData.from_dict(StringName(move_id), raw)
+			stats.moves[move.id] = move
+			if move.is_command_move():
+				stats.command_moves.append(move)
+	stats.command_moves.sort_custom(_more_demanding_first)
+
+	var raw_projectiles: Dictionary = d.get("projectiles", {})
+	for projectile_id: String in raw_projectiles.keys():
+		var raw: Variant = raw_projectiles[projectile_id]
+		if raw is Dictionary:
+			stats.projectiles[StringName(projectile_id)] = ProjectileData.from_dict(
+				StringName(projectile_id), raw
+			)
 	return stats
+
+
+static func _more_demanding_first(a: MoveData, b: MoveData) -> bool:
+	return a.priority > b.priority
 
 
 func get_move(move_id: StringName) -> MoveData:
 	return moves.get(move_id, null)
+
+
+func get_projectile(projectile_id: StringName) -> ProjectileData:
+	return projectiles.get(projectile_id, null)
 
 
 ## Traduce postura + botón al id de movimiento. El nombre es un convenio, no

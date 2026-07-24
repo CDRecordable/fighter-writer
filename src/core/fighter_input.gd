@@ -10,6 +10,11 @@ const BTN_LP := 1  ## Puñetazo débil  (botón A del plan)
 const BTN_HP := 2  ## Puñetazo fuerte (botón B)
 const BTN_LK := 4  ## Patada débil    (botón X)
 const BTN_HK := 8  ## Patada fuerte   (botón Y)
+## Botón único del modo accesible (PLAN.md §3): especial con dirección + botón,
+## sin medias lunas. No es un quinto botón del juego normal.
+const BTN_SPECIAL := 16
+
+const BTN_ALL := BTN_LP | BTN_HP | BTN_LK | BTN_HK
 
 ## Dirección en espacio del MUNDO, no relativa al personaje: -1 izquierda,
 ## +1 derecha. La conversión a "adelante/atrás" la hace el luchador con su

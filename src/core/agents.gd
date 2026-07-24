@@ -46,6 +46,8 @@ class Human extends Agent:
 			buttons |= FighterInput.BTN_LK
 		if Input.is_action_pressed(prefix + "hk"):
 			buttons |= FighterInput.BTN_HK
+		if Input.is_action_pressed(prefix + "special"):
+			buttons |= FighterInput.BTN_SPECIAL
 
 		_snapshot.dir_x = dir_x
 		_snapshot.dir_y = dir_y

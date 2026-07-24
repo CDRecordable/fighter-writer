@@ -58,6 +58,15 @@ func _run_all() -> void:
 	_test_simulacion_determinista()
 	_test_rondas_y_ko()
 
+	_test_deteccion_de_comandos()
+	_test_boton_bufferizado()
+	_test_buffer_no_envejece_en_hitstop()
+	_test_especial_multigolpe()
+	_test_proyectil()
+	_test_contraataque()
+	_test_super_cuesta_tinta()
+	_test_agarre()
+
 	print("")
 	if failures.is_empty():
 		print("OK — todas las pruebas pasan")
@@ -180,7 +189,225 @@ func _test_rondas_y_ko() -> void:
 	arena.free()
 
 
+# --- Entradas de comando -----------------------------------------------------
+
+## Direcciones en espacio del mundo mirando a la derecha, para escribir las
+## secuencias como se leen: ABAJO, ABAJO_ADELANTE, ADELANTE...
+const NEUTRO := [0, 0]
+const ABAJO := [0, -1]
+const ABAJO_ADELANTE := [1, -1]
+const ADELANTE := [1, 0]
+const ATRAS := [-1, 0]
+const ARRIBA := [0, 1]
+
+
+func _test_deteccion_de_comandos() -> void:
+	_check("↓ ↘ → se reconoce como media luna adelante",
+		_buffer_with([ABAJO, ABAJO, ABAJO_ADELANTE, ADELANTE]).matches(&"236"))
+	_check("↓ → (sin diagonal) también vale: no castigamos al que no es jugón",
+		_buffer_with([ABAJO, ABAJO, ADELANTE]).matches(&"236"))
+	_check("una media luna adelante NO se confunde con una hacia atrás",
+		not _buffer_with([ABAJO, ABAJO_ADELANTE, ADELANTE]).matches(&"214"))
+	_check("→ ↓ ↘ se reconoce como dragón",
+		_buffer_with([ADELANTE, ABAJO, ABAJO_ADELANTE]).matches(&"623"))
+	_check("un ↓...→ demasiado lento no cuenta como media luna",
+		not _buffer_with(_repeat(ABAJO, 2) + _repeat(NEUTRO, 30) + [ADELANTE]).matches(&"236"))
+	_check("una media luna vieja ya no dispara nada",
+		not _buffer_with([ABAJO, ABAJO_ADELANTE, ADELANTE] + _repeat(NEUTRO, 20)).matches(&"236"))
+	_check("dos medias lunas seguidas se reconocen como entrada de súper",
+		_buffer_with([ABAJO, ABAJO_ADELANTE, ADELANTE, ABAJO, ABAJO_ADELANTE, ADELANTE]).matches(&"236236"))
+	_check("una sola media luna NO cuela como súper",
+		not _buffer_with([ABAJO, ABAJO_ADELANTE, ADELANTE]).matches(&"236236"))
+	_check("mantener atrás y soltar adelante es una carga",
+		_buffer_with(_repeat(ATRAS, InputBuffer.CHARGE_TICKS + 2) + [ADELANTE]).matches(&"charge46"))
+	_check("una carga corta no vale: hay que aguantar",
+		not _buffer_with(_repeat(ATRAS, 20) + [ADELANTE]).matches(&"charge46"))
+	_check("mantener abajo y soltar arriba es la otra carga",
+		_buffer_with(_repeat(ABAJO, InputBuffer.CHARGE_TICKS + 2) + [ARRIBA]).matches(&"charge28"))
+
+
+func _test_boton_bufferizado() -> void:
+	# El corazón del "game feel": pulsar durante la recuperación de un golpe
+	# tiene que sacar el siguiente en cuanto el personaje puede actuar.
+	var arena := _make_arena()
+	var attacker: Fighter = arena.fighters[0]
+	var agent: Scripted = attacker.agent
+	var total: int = attacker.stats.get_move(&"stand_hk").total_frames()
+	# Lejos del rival a propósito: el golpe tiene que fallar. Si conectara, el
+	# hitstop cambiaría los tiempos y la prueba dejaría de medir el buffer.
+	_separate(arena, 90.0)
+
+	agent.press(FighterInput.BTN_HK)
+	_run(arena, total - 3)
+	_check("el golpe largo sigue en curso justo antes de acabar",
+		attacker.current_move != null and attacker.current_move.id == &"stand_hk")
+
+	# Se pulsa 3 ticks ANTES de poder actuar: sin buffer, se perdería.
+	agent.press(FighterInput.BTN_LP)
+	_run(arena, 5)
+	_check("un botón pulsado durante la recuperación sale al recuperarse",
+		attacker.current_move != null and attacker.current_move.id == &"stand_lp")
+	arena.free()
+
+
+func _test_buffer_no_envejece_en_hitstop() -> void:
+	var arena := _make_arena()
+	var fighter: Fighter = arena.fighters[0]
+	fighter.hitstop = 6
+	(fighter.agent as Scripted).press(FighterInput.BTN_LP)
+	_run(arena, 5)
+
+	# pressed_within(…, 1) solo mira el tick más reciente: si la pulsación
+	# sigue ahí, es que el historial no ha corrido durante la congelación.
+	_check("una pulsación hecha en hitstop sigue fresca al descongelar",
+		fighter.buffer.pressed_within(FighterInput.BTN_LP, 1) != 0)
+	arena.free()
+
+
+func _test_especial_multigolpe() -> void:
+	var arena := _make_arena()
+	var attacker: Fighter = arena.fighters[0]
+	var defender: Fighter = arena.fighters[1]
+	var danza: MoveData = attacker.stats.get_move(&"danza_bruta")
+
+	_input_motion(arena, attacker, [ABAJO, ABAJO_ADELANTE, ADELANTE])
+	(attacker.agent as Scripted).press(FighterInput.BTN_LP)
+	_run(arena, 2)
+	_check("la media luna + puño saca la Danza Bruta",
+		attacker.current_move != null and attacker.current_move.id == &"danza_bruta")
+
+	_run(arena, 60)
+	var damage: int = defender.stats.max_health - defender.health
+	_check("la Danza Bruta golpea más de una vez (daño %d, un golpe son %d)" % [damage, danza.damage],
+		damage >= danza.damage * 2)
+	arena.free()
+
+
+func _test_proyectil() -> void:
+	var arena := _make_arena()
+	var attacker: Fighter = arena.fighters[0]
+	var defender: Fighter = arena.fighters[1]
+	# A media pantalla: a bocajarro el panfleto impactaría nada más nacer y no
+	# se podría comprobar que vuela.
+	_separate(arena, 90.0)
+
+	_input_motion(arena, attacker, [ABAJO, ABAJO_ADELANTE, ADELANTE])
+	(attacker.agent as Scripted).press(FighterInput.BTN_LK)
+	_run(arena, 16)
+	_check("la media luna + patada lanza el panfleto", arena.projectiles.size() == 1)
+
+	_run(arena, 60)
+	_check("el panfleto golpea al rival", defender.health < defender.stats.max_health)
+	_check("el panfleto se consume al golpear", arena.projectiles.is_empty())
+	arena.free()
+
+
+func _test_contraataque() -> void:
+	var arena := _make_arena()
+	var counter_user: Fighter = arena.fighters[0]
+	var aggressor: Fighter = arena.fighters[1]
+
+	_input_motion(arena, counter_user, [ABAJO, [-1, -1], ATRAS])
+	(counter_user.agent as Scripted).press(FighterInput.BTN_LP)
+	_run(arena, 2)
+	_check("la media luna atrás + puño saca la Asamblea",
+		counter_user.current_move != null and counter_user.current_move.id == &"asamblea")
+
+	(aggressor.agent as Scripted).press(FighterInput.BTN_LP)
+	_run(arena, 40)
+	_check("la Asamblea absorbe el golpe sin recibir daño",
+		counter_user.health == counter_user.stats.max_health)
+	_check("y devuelve la patada okupa", aggressor.health < aggressor.stats.max_health)
+	arena.free()
+
+
+func _test_super_cuesta_tinta() -> void:
+	var arena := _make_arena()
+	var attacker: Fighter = arena.fighters[0]
+	var doble := [ABAJO, ABAJO_ADELANTE, ADELANTE, ABAJO, ABAJO_ADELANTE, ADELANTE]
+
+	attacker.meter = 0
+	_input_motion(arena, attacker, doble)
+	(attacker.agent as Scripted).press(FighterInput.BTN_HP)
+	_run(arena, 2)
+	_check("sin Tinta el súper no sale (sale el especial normal)",
+		attacker.current_move != null and attacker.current_move.id != &"super_combatientes")
+	arena.free()
+
+	arena = _make_arena()
+	attacker = arena.fighters[0]
+	attacker.meter = attacker.stats.max_meter
+	_input_motion(arena, attacker, doble)
+	(attacker.agent as Scripted).press(FighterInput.BTN_HP)
+	_run(arena, 2)
+	_check("con la Tinta llena sale Los Combatientes",
+		attacker.current_move != null and attacker.current_move.id == &"super_combatientes")
+	_check("y el súper vacía la barra", attacker.meter == 0)
+	_check("el súper congela al rival mientras arranca", arena.fighters[1].hitstop > 0)
+	arena.free()
+
+
+func _test_agarre() -> void:
+	var arena := _make_arena()
+	var attacker: Fighter = arena.fighters[0]
+	var defender: Fighter = arena.fighters[1]
+	attacker.pos_x = FP.from_px(-14.0)
+	defender.pos_x = FP.from_px(14.0)
+
+	# El rival bloquea con todas sus fuerzas: da igual, un agarre no se bloquea.
+	(defender.agent as Scripted).hold(-defender.facing)
+	_input_motion(arena, attacker, [ADELANTE])
+	(attacker.agent as Scripted).press(FighterInput.BTN_HP)
+	_run(arena, 2)
+	_check("adelante + puño fuerte a bocajarro saca el agarre",
+		attacker.current_move != null and attacker.current_move.id == &"agarre")
+	_run(arena, 20)
+	_check("el agarre atraviesa el bloqueo", defender.health < defender.stats.max_health)
+	arena.free()
+
+	arena = _make_arena()
+	attacker = arena.fighters[0]
+	attacker.pos_x = FP.from_px(-90.0)
+	arena.fighters[1].pos_x = FP.from_px(90.0)
+	_input_motion(arena, attacker, [ADELANTE])
+	(attacker.agent as Scripted).press(FighterInput.BTN_HP)
+	_run(arena, 2)
+	_check("fuera de rango el mismo botón saca el puñetazo normal, no el agarre",
+		attacker.current_move != null and attacker.current_move.id == &"stand_hp")
+	arena.free()
+
+
 # --- Utilidades --------------------------------------------------------------
+
+func _buffer_with(dirs: Array) -> InputBuffer:
+	var buffer := InputBuffer.new()
+	var snapshot := FighterInput.new()
+	for dir: Array in dirs:
+		snapshot.dir_x = dir[0]
+		snapshot.dir_y = dir[1]
+		buffer.push(snapshot, 1)
+	return buffer
+
+
+func _repeat(dir: Array, times: int) -> Array:
+	var out := []
+	for i in times:
+		out.append(dir)
+	return out
+
+
+## Separa a los luchadores `half` píxeles del centro cada uno.
+func _separate(arena: CombatArena, half: float) -> void:
+	arena.fighters[0].pos_x = FP.from_px(-half)
+	arena.fighters[1].pos_x = FP.from_px(half)
+
+
+## Ejecuta una secuencia de direcciones en el combate real, dos ticks por paso.
+func _input_motion(arena: CombatArena, fighter: Fighter, dirs: Array) -> void:
+	var agent: Scripted = fighter.agent
+	for dir: Array in dirs:
+		agent.hold(dir[0], dir[1])
+		_run(arena, 2)
 
 func _make_arena() -> CombatArena:
 	var arena: CombatArena = ARENA_SCENE.instantiate()

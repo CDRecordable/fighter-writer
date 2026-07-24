@@ -19,16 +19,19 @@ const KEYS := {
 	1: {
 		"left": KEY_A, "right": KEY_D, "up": KEY_W, "down": KEY_S,
 		"lp": KEY_J, "hp": KEY_K, "lk": KEY_N, "hk": KEY_M,
+		"special": KEY_L,
 	},
 	2: {
 		"left": KEY_LEFT, "right": KEY_RIGHT, "up": KEY_UP, "down": KEY_DOWN,
 		"lp": KEY_KP_1, "hp": KEY_KP_2, "lk": KEY_KP_4, "hk": KEY_KP_5,
+		"special": KEY_KP_0,
 	},
 }
 
 const PAD_BUTTONS := {
 	"lp": JOY_BUTTON_X, "hp": JOY_BUTTON_Y,
 	"lk": JOY_BUTTON_A, "hk": JOY_BUTTON_B,
+	"special": JOY_BUTTON_RIGHT_SHOULDER,
 }
 
 const PAD_DPAD := {
@@ -61,6 +64,8 @@ func _enter_tree() -> void:
 	_add_key(&"dev_reset", KEY_F5)
 	_ensure_action(&"dev_toggle_dummy")
 	_add_key(&"dev_toggle_dummy", KEY_F2)
+	_ensure_action(&"dev_toggle_accessible")
+	_add_key(&"dev_toggle_accessible", KEY_F3)
 
 
 func _ensure_action(action: StringName) -> void:

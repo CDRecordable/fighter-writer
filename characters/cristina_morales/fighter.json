@@ -205,6 +205,216 @@
           ]
         }
       ]
+    },
+
+    "_comentario_agarre": "Agarre básico (PLAN.md §3). No se bloquea, pero solo sale a bocajarro: fuera de rango el botón cae al puñetazo normal, como en SF2. Al no haber sprites todavía no hay animación de presa; es un golpe imbloqueable de rango corto.",
+
+    "agarre": {
+      "display_name": "Agarre",
+      "stance": "stand",
+      "motion": "6",
+      "button": "hp",
+      "max_range": 40,
+      "requires_grounded_target": true,
+      "unblockable": true,
+      "height": "mid",
+      "damage": 110,
+      "hitstun": 26,
+      "hitstop": 12,
+      "knockdown": true,
+      "pushback_hit": 3.2,
+      "meter_hit": 70,
+      "frames": [
+        { "duration": 2 },
+        {
+          "duration": 2,
+          "hit": [{ "x": 8, "y": 20, "w": 30, "h": 40 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 30, "h": 76 }]
+        },
+        { "duration": 24 }
+      ]
+    },
+
+    "_comentario_especiales": "Cristina usa solo dos tipos de entrada (media luna adelante y atrás), como pide el plan: máximo 2 por personaje para que el jugador y la IA los aprendan rápido.",
+
+    "danza_bruta": {
+      "display_name": "Danza Bruta",
+      "stance": "stand",
+      "motion": "236",
+      "button": "p",
+      "height": "mid",
+      "damage": 30,
+      "hitstun": 14,
+      "blockstun": 10,
+      "hitstop": 5,
+      "pushback_hit": 0.9,
+      "pushback_block": 1.4,
+      "meter_hit": 40,
+      "meter_block": 16,
+      "frames": [
+        { "duration": 8 },
+        {
+          "duration": 3,
+          "hit_id": 1,
+          "vel_x": 3.2,
+          "hit": [{ "x": 8, "y": 26, "w": 26, "h": 26 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 24, "w": 26, "h": 30 }
+          ]
+        },
+        { "duration": 5, "vel_x": 1.2 },
+        {
+          "duration": 3,
+          "hit_id": 2,
+          "vel_x": 3.0,
+          "hit": [{ "x": 8, "y": 30, "w": 26, "h": 26 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 28, "w": 26, "h": 30 }
+          ]
+        },
+        { "duration": 5, "vel_x": 1.0 },
+        {
+          "duration": 4,
+          "hit_id": 3,
+          "vel_x": 2.6,
+          "hit": [{ "x": 8, "y": 20, "w": 30, "h": 34 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 18, "w": 30, "h": 38 }
+          ]
+        },
+        { "duration": 22 }
+      ]
+    },
+
+    "lectura_facil": {
+      "display_name": "Lectura Fácil",
+      "stance": "stand",
+      "motion": "236",
+      "button": "k",
+      "frames": [
+        { "duration": 10 },
+        { "duration": 4, "spawn": "panfleto" },
+        { "duration": 24 }
+      ]
+    },
+
+    "asamblea": {
+      "display_name": "Asamblea",
+      "stance": "stand",
+      "motion": "214",
+      "button": "p",
+      "counter": { "from": 3, "to": 16, "move": "asamblea_respuesta" },
+      "frames": [
+        { "duration": 3 },
+        {
+          "duration": 14,
+          "hurt": [{ "x": -13, "y": 0, "w": 26, "h": 70 }]
+        },
+        { "duration": 14 }
+      ]
+    },
+
+    "_comentario_respuesta": "No tiene motion ni button: solo se llega a ella absorbiendo un golpe con la Asamblea. El jugador no puede invocarla suelta.",
+
+    "asamblea_respuesta": {
+      "display_name": "Patada okupa",
+      "stance": "stand",
+      "height": "mid",
+      "damage": 95,
+      "hitstun": 22,
+      "blockstun": 14,
+      "hitstop": 11,
+      "knockdown": true,
+      "pushback_hit": 2.6,
+      "meter_hit": 90,
+      "frames": [
+        { "duration": 4 },
+        {
+          "duration": 4,
+          "hit": [{ "x": 8, "y": 24, "w": 34, "h": 30 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 22, "w": 34, "h": 34 }
+          ]
+        },
+        { "duration": 18 }
+      ]
+    },
+
+    "super_combatientes": {
+      "display_name": "Los Combatientes",
+      "stance": "stand",
+      "motion": "236236",
+      "button": "p",
+      "meter_cost": 1000,
+      "super_freeze": 40,
+      "height": "mid",
+      "damage": 55,
+      "hitstun": 16,
+      "blockstun": 12,
+      "hitstop": 6,
+      "pushback_hit": 0.6,
+      "pushback_block": 1.6,
+      "meter_hit": 0,
+      "meter_block": 0,
+      "frames": [
+        { "duration": 6 },
+        {
+          "duration": 3,
+          "hit_id": 1,
+          "vel_x": 2.4,
+          "hit": [{ "x": 6, "y": 20, "w": 34, "h": 40 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
+        },
+        { "duration": 4 },
+        {
+          "duration": 3,
+          "hit_id": 2,
+          "vel_x": 2.2,
+          "hit": [{ "x": 6, "y": 24, "w": 38, "h": 40 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
+        },
+        { "duration": 4 },
+        {
+          "duration": 3,
+          "hit_id": 3,
+          "vel_x": 2.0,
+          "hit": [{ "x": 6, "y": 16, "w": 42, "h": 46 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
+        },
+        { "duration": 5 },
+        {
+          "duration": 4,
+          "hit_id": 4,
+          "hit": [{ "x": 4, "y": 0, "w": 56, "h": 70 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
+        },
+        { "duration": 30 }
+      ]
+    }
+  },
+
+  "projectiles": {
+    "panfleto": {
+      "display_name": "Panfleto",
+      "debug_color": "#f2e6b4",
+      "speed": 2.2,
+      "lifetime": 200,
+      "offset_x": 22,
+      "offset_y": 36,
+      "box": { "x": -8, "y": -6, "w": 16, "h": 12 },
+      "height": "mid",
+      "damage": 40,
+      "hitstun": 26,
+      "blockstun": 14,
+      "hitstop": 6,
+      "pushback_hit": 1.8,
+      "pushback_block": 1.4,
+      "meter_hit": 55,
+      "meter_block": 22
     }
   }
 }

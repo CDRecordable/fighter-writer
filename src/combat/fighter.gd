@@ -25,6 +25,8 @@ enum State {
 	KO,
 }
 
+enum HitResult { HIT, BLOCKED, COUNTERED }
+
 ## Estados desde los que se puede empezar una acción nueva. En la v1 no hay
 ## cancels (PLAN.md §3): los combos salen del enlace natural de frames.
 const NEUTRAL_GROUND := [State.IDLE, State.WALK_F, State.WALK_B, State.CROUCH]
@@ -50,7 +52,6 @@ var state_frame: int = 0
 
 var current_move: MoveData = null
 var move_frame: int = 0
-var move_connected: bool = false
 
 var health: int = 0
 var meter: int = 0
@@ -60,10 +61,24 @@ var blocking_low: bool = false
 var jump_dir: int = 0
 
 var input := FighterInput.new()
+var buffer := InputBuffer.new()
+
+## Modo accesible (PLAN.md §3): especiales con un botón y una dirección, sin
+## medias lunas. Lo enciende la arena; es una opción del jugador, no una
+## dificultad distinta.
+var accessible_mode: bool = false
+
+## Proyectiles que este luchador ha pedido lanzar en este tick. Los recoge la
+## arena, que es quien puede meterlos en el escenario.
+var pending_spawns: Array[StringName] = []
+
 ## Lo enciende la arena con F1. En un juego de lucha ver las cajas no es un
 ## lujo de depuración: es la única forma de juzgar si un golpe es justo.
 var show_boxes: bool = false
 
+## Un movimiento golpea una vez por cada hit_id: así los especiales de varios
+## golpes conectan varias veces y los normales solo una.
+var _connected_hit_ids: Array[int] = []
 var _stance_box_buffer: Array[BoxData] = []
 var _empty_boxes: Array[BoxData] = []
 
@@ -87,12 +102,14 @@ func reset_for_round(start_x: int, start_facing: int) -> void:
 	state_frame = 0
 	current_move = null
 	move_frame = 0
-	move_connected = false
 	stun_frames = 0
 	hitstop = 0
 	blocking_low = false
 	health = stats.max_health
+	_connected_hit_ids.clear()
+	pending_spawns.clear()
 	input.clear()
+	buffer.clear()
 	update_visual()
 
 
@@ -101,8 +118,16 @@ func reset_for_round(start_x: int, start_facing: int) -> void:
 func tick_input() -> void:
 	if agent == null or state == State.KO:
 		input.clear()
-		return
-	input.copy_from(agent.poll(self))
+	else:
+		input.copy_from(agent.poll(self))
+	# El historial se alimenta en hitstun y durante un golpe: es justo entonces
+	# cuando el jugador prepara el siguiente movimiento. En hitstop, en cambio,
+	# el tiempo está parado para todos, así que el buffer tampoco envejece: solo
+	# se apunta lo que se pulse.
+	if hitstop > 0:
+		buffer.merge_press(input.pressed)
+	else:
+		buffer.push(input, facing)
 
 
 func tick_simulate() -> void:
@@ -132,14 +157,14 @@ func _advance_state() -> void:
 			if state_frame >= stats.landing_lag:
 				_enter_neutral()
 		State.AIR:
-			_try_start_attack(MoveData.Stance.AIR)
+			_try_start_action(MoveData.Stance.AIR)
 		_:
 			_advance_grounded_neutral()
 
 
 func _advance_grounded_neutral() -> void:
 	var crouching := input.dir_y < 0
-	if _try_start_attack(MoveData.Stance.CROUCH if crouching else MoveData.Stance.STAND):
+	if _try_start_action(MoveData.Stance.CROUCH if crouching else MoveData.Stance.STAND):
 		return
 	if input.dir_y > 0:
 		_set_state(State.JUMPSQUAT)
@@ -173,30 +198,155 @@ func _advance_attack() -> void:
 		return
 	if move_frame > last:
 		current_move = null
-		move_connected = false
+		_connected_hit_ids.clear()
 		if airborne:
 			_set_state(State.AIR)
 		else:
 			_enter_neutral()
+		return
+	_process_frame_events()
 
 
-func _try_start_attack(stance: MoveData.Stance) -> bool:
-	if not input.any_pressed():
+## Lo que ocurre "una vez" al entrar en un tramo: imponer velocidad (los
+## especiales que avanzan) o soltar un proyectil.
+func _process_frame_events() -> void:
+	if not current_move.starts_frame(move_frame):
+		return
+	var frame := current_move.frame_at(move_frame)
+	if frame == null:
+		return
+	if frame.sets_velocity:
+		vel_x = facing * frame.vel_x
+	if frame.spawn != &"":
+		pending_spawns.append(frame.spawn)
+
+
+# --- Elegir qué sale ---------------------------------------------------------
+
+## Orden de prueba: primero los comandos difíciles (súper, especiales, agarre) y
+## solo después los normales. Al revés, un botón se comería siempre al especial
+## que empieza por ese mismo botón.
+func _try_start_action(stance: MoveData.Stance) -> bool:
+	if _try_accessible_special(stance):
+		return true
+	if _try_command_move(stance):
+		return true
+	return _try_normal(stance)
+
+
+func _try_command_move(stance: MoveData.Stance) -> bool:
+	for move: MoveData in stats.command_moves:
+		if not _can_start(move, stance):
+			continue
+		if buffer.pressed_within(move.button_mask) == 0:
+			continue
+		if not buffer.matches(move.motion):
+			continue
+		_start_move(move)
+		return true
+	return false
+
+
+## Modo accesible: un botón dedicado + la dirección que estés manteniendo.
+## Nada de medias lunas. La correspondencia dirección→movimiento es provisional
+## y hay que probarla con gente no jugona antes de cerrarla.
+func _try_accessible_special(stance: MoveData.Stance) -> bool:
+	if not accessible_mode:
 		return false
+	if buffer.pressed_within(FighterInput.BTN_SPECIAL) == 0:
+		return false
+	var move := _accessible_move()
+	if move == null or not _can_start(move, stance):
+		return false
+	_start_move(move)
+	return true
+
+
+func _accessible_move() -> MoveData:
+	var dir := buffer.current_dir()
+	if dir in InputBuffer.UP_DIRS:
+		return _find_super()
+	if dir in InputBuffer.DOWN_DIRS:
+		return _find_command(&"214")
+	if dir in InputBuffer.FORWARD_DIRS:
+		return _find_command(&"623")
+	if dir in InputBuffer.BACK_DIRS:
+		return _find_command(&"charge46")
+	return _find_command(&"236")
+
+
+func _find_command(motion: StringName) -> MoveData:
+	for move: MoveData in stats.command_moves:
+		if move.motion == motion and move.meter_cost == 0:
+			return move
+	return null
+
+
+func _find_super() -> MoveData:
+	for move: MoveData in stats.command_moves:
+		if move.meter_cost > 0:
+			return move
+	return null
+
+
+## Los normales leen el buffer igual que los especiales. Es lo que hace que
+## pulsar el botón un par de frames antes de recuperarte saque el golpe en
+## cuanto puedes, en vez de tragárselo.
+func _try_normal(stance: MoveData.Stance) -> bool:
 	for button in [FighterInput.BTN_LP, FighterInput.BTN_HP, FighterInput.BTN_LK, FighterInput.BTN_HK]:
-		if not input.just_pressed(button):
+		if buffer.pressed_within(button) == 0:
 			continue
 		var move := stats.get_move(FighterStats.move_id_for(stance, button))
 		if move == null or move.total_frames() == 0:
 			continue
-		current_move = move
-		move_frame = 0
-		move_connected = false
-		_set_state(State.ATTACK)
-		if not airborne:
-			vel_x = 0
+		_start_move(move)
 		return true
 	return false
+
+
+func _can_start(move: MoveData, stance: MoveData.Stance) -> bool:
+	if move.total_frames() == 0:
+		return false
+	# Los especiales de suelo salen igual de pie que agachado, como en SF2; los
+	# aéreos solo en el aire.
+	if stance == MoveData.Stance.AIR:
+		if move.stance != MoveData.Stance.AIR:
+			return false
+	elif move.stance == MoveData.Stance.AIR:
+		return false
+	if move.meter_cost > 0 and meter < move.meter_cost:
+		return false
+	return _range_ok(move)
+
+
+func _range_ok(move: MoveData) -> bool:
+	if move.max_range <= 0:
+		return true
+	if opponent == null:
+		return false
+	if move.requires_grounded_target and opponent.airborne:
+		return false
+	return absi(distance_to_opponent()) <= move.max_range
+
+
+func _start_move(move: MoveData) -> void:
+	current_move = move
+	move_frame = 0
+	_connected_hit_ids.clear()
+	_set_state(State.ATTACK)
+	if not airborne:
+		vel_x = 0
+	if move.meter_cost > 0:
+		meter = maxi(0, meter - move.meter_cost)
+		if opponent != null and move.super_freeze > 0:
+			opponent.hitstop = maxi(opponent.hitstop, move.super_freeze)
+	# Sin esto, la misma pulsación (o la misma media luna, que sigue en el
+	# historial) dispararía el movimiento otra vez al tick siguiente.
+	if move.is_command_move():
+		buffer.consume()
+	else:
+		buffer.consume_buttons()
+	_process_frame_events()
 
 
 func _launch_jump() -> void:
@@ -214,8 +364,9 @@ func _apply_physics() -> void:
 		if pos_y <= 0:
 			_land()
 	elif state in [State.HITSTUN, State.BLOCKSTUN, State.LANDING, State.ATTACK, State.KO]:
-		# Rozamiento: el empuje de un golpe se disipa en unos frames en vez de
-		# deslizar para siempre. División entera = determinista.
+		# Rozamiento: el empuje de un golpe (o el avance de un especial) se
+		# disipa en unos frames en vez de deslizar para siempre. División
+		# entera = determinista.
 		vel_x -= vel_x / 6
 		if absi(vel_x) < FP.from_px(0.08):
 			vel_x = 0
@@ -233,14 +384,14 @@ func _land() -> void:
 		stun_frames = maxi(stun_frames, 12)
 		return
 	current_move = null
-	move_connected = false
+	_connected_hit_ids.clear()
 	vel_x = 0
 	_set_state(State.LANDING)
 
 
 func _enter_neutral() -> void:
 	current_move = null
-	move_connected = false
+	_connected_hit_ids.clear()
 	blocking_low = false
 	_set_state(State.CROUCH if input.dir_y < 0 else State.IDLE)
 
@@ -252,31 +403,35 @@ func _set_state(new_state: int) -> void:
 
 # --- Golpes ------------------------------------------------------------------
 
-## Devuelve true si el golpe fue bloqueado. La arena decide el resto.
-func receive_hit(move: MoveData, from_x: int) -> bool:
-	var blocked := _can_block(move)
+## Encaja un golpe venga de donde venga (un movimiento o un proyectil: los dos
+## son HitProperties). Devuelve un HitResult para que la arena sepa qué contar.
+func receive_hit(hit: HitProperties, from_x: int) -> int:
+	if _try_counter():
+		return HitResult.COUNTERED
+
+	var blocked := not hit.unblockable and _can_block(hit)
 	var away := 1 if pos_x >= from_x else -1
 
 	if blocked:
 		blocking_low = input.dir_y < 0
-		stun_frames = move.blockstun
-		vel_x = away * move.pushback_block
-		meter = mini(stats.max_meter, meter + move.meter_block)
+		stun_frames = hit.blockstun
+		vel_x = away * hit.pushback_block
+		meter = mini(stats.max_meter, meter + hit.meter_block)
 		_set_state(State.BLOCKSTUN)
 		took_damage.emit(0, true)
-		return true
+		return HitResult.BLOCKED
 
-	health = maxi(0, health - move.damage)
-	stun_frames = move.hitstun
-	vel_x = away * move.pushback_hit
-	meter = mini(stats.max_meter, meter + move.meter_hit)
+	health = maxi(0, health - hit.damage)
+	stun_frames = hit.hitstun
+	vel_x = away * hit.pushback_hit
+	meter = mini(stats.max_meter, meter + hit.meter_hit)
 	current_move = null
-	move_connected = false
-	if move.knockdown and not airborne:
+	_connected_hit_ids.clear()
+	if hit.knockdown and not airborne:
 		airborne = true
 		vel_y = FP.from_px(3.2)
 	_set_state(State.HITSTUN)
-	took_damage.emit(move.damage, false)
+	took_damage.emit(hit.damage, false)
 
 	if health <= 0:
 		_set_state(State.KO)
@@ -284,12 +439,26 @@ func receive_hit(move: MoveData, from_x: int) -> bool:
 		vel_y = FP.from_px(4.0)
 		vel_x = away * FP.from_px(2.2)
 		knocked_out.emit()
-	return false
+	return HitResult.HIT
+
+
+## La Asamblea de Cristina: si el golpe llega dentro de la ventana del
+## contraataque, se absorbe y sale la respuesta (PLAN.md §4).
+func _try_counter() -> bool:
+	if state != State.ATTACK or current_move == null:
+		return false
+	if not current_move.is_counter_active(move_frame):
+		return false
+	var reply := stats.get_move(current_move.counter_move)
+	if reply == null:
+		return false
+	_start_move(reply)
+	return true
 
 
 ## Bloqueo por dirección, como SF2: mantener hacia atrás. La altura del golpe
-## decide si vale de pie o agachado (MoveData.Height).
-func _can_block(move: MoveData) -> bool:
+## decide si vale de pie o agachado (HitProperties.Height).
+func _can_block(hit: HitProperties) -> bool:
 	if state in [State.ATTACK, State.HITSTUN, State.JUMPSQUAT, State.KO, State.LANDING]:
 		return false
 	if airborne:
@@ -297,13 +466,30 @@ func _can_block(move: MoveData) -> bool:
 	if input.dir_x != -facing or input.dir_x == 0:
 		return false
 	var crouching := input.dir_y < 0 or state == State.CROUCH
-	match move.height:
-		MoveData.Height.LOW:
+	match hit.height:
+		HitProperties.Height.LOW:
 			return crouching
-		MoveData.Height.OVERHEAD:
+		HitProperties.Height.OVERHEAD:
 			return not crouching
 		_:
 			return true
+
+
+## La arena lo llama cuando el movimiento actual conecta, para que ese mismo
+## grupo de impacto no vuelva a pegar.
+func register_hit() -> void:
+	if current_move == null:
+		return
+	var frame := current_move.frame_at(move_frame)
+	var id := frame.hit_id if frame != null else 0
+	if not (id in _connected_hit_ids):
+		_connected_hit_ids.append(id)
+
+
+func take_pending_spawns() -> Array[StringName]:
+	var out := pending_spawns.duplicate()
+	pending_spawns.clear()
+	return out
 
 
 # --- Consultas para la arena -------------------------------------------------
@@ -313,10 +499,12 @@ func is_attacking() -> bool:
 
 
 func active_hitboxes() -> Array[BoxData]:
-	if not is_attacking() or move_connected:
+	if not is_attacking():
 		return _empty_boxes
 	var frame := current_move.frame_at(move_frame)
-	if frame == null:
+	if frame == null or frame.hitboxes.is_empty():
+		return _empty_boxes
+	if frame.hit_id in _connected_hit_ids:
 		return _empty_boxes
 	return frame.hitboxes
 
@@ -368,6 +556,10 @@ func health_ratio() -> float:
 
 func meter_ratio() -> float:
 	return float(meter) / float(maxi(1, stats.max_meter))
+
+
+func has_super() -> bool:
+	return meter >= stats.max_meter
 
 
 # --- Render ------------------------------------------------------------------

@@ -25,6 +25,7 @@ const KO_TICKS := 150
 enum RoundState { INTRO, FIGHTING, KO, MATCH_END }
 
 var fighters: Array[Fighter] = []
+var projectiles: Array[Projectile] = []
 var hud: CanvasLayer = null
 var camera: Camera2D = null
 var dummy: Agents.Dummy = null
@@ -35,6 +36,7 @@ var round_number: int = 1
 var rounds_won := [0, 0]
 var clock_ticks: int = ROUND_SECONDS * TICKS_PER_SECOND
 var show_boxes: bool = false
+var accessible_mode: bool = false
 var banner: String = ""
 var dummy_mode_label: String = "Agresiva"
 
@@ -122,6 +124,8 @@ func tick() -> void:
 
 	for fighter in fighters:
 		fighter.update_visual()
+	for projectile in projectiles:
+		projectile.update_visual()
 	_update_camera()
 	round_state_frame += 1
 
@@ -150,6 +154,8 @@ func _tick_fight() -> void:
 	_resolve_pushboxes()
 	_clamp_to_stage()
 	_resolve_hits()
+	_spawn_requested_projectiles()
+	_tick_projectiles()
 
 	if _any_in_hitstop():
 		return  # El reloj también se congela con el golpe.
@@ -185,6 +191,7 @@ func _start_round(number: int) -> void:
 	round_number = number
 	clock_ticks = ROUND_SECONDS * TICKS_PER_SECOND
 	var start := FP.from_px(START_DISTANCE)
+	_clear_projectiles()
 	fighters[0].reset_for_round(-start, 1)
 	fighters[1].reset_for_round(start, -1)
 	banner = ""
@@ -276,10 +283,15 @@ func _find_hit(attacker: Fighter, defender: Fighter) -> MoveData:
 
 
 func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData) -> void:
-	# Se marca antes de nada: un movimiento golpea una vez, aunque su hitbox
-	# siga activa varios frames.
-	attacker.move_connected = true
-	var blocked := defender.receive_hit(move, attacker.pos_x)
+	# Se marca antes de nada: un grupo de impacto pega una vez, aunque su
+	# hitbox siga activa varios frames.
+	attacker.register_hit()
+	var result := defender.receive_hit(move, attacker.pos_x)
+
+	if result == Fighter.HitResult.COUNTERED:
+		# El contraataque se ha tragado el golpe: ni daño, ni hitstop, ni
+		# Tinta. La respuesta del que contra ya llegará por su cuenta.
+		return
 
 	attacker.hitstop = move.hitstop
 	defender.hitstop = move.hitstop
@@ -287,10 +299,68 @@ func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData) -> void:
 	# hitstun por el golpe del otro: entonces manda ese empuje, no el suyo.
 	if attacker.is_attacking():
 		attacker.vel_x = -attacker.facing * move.self_pushback
-	# El atacante también carga Tinta, pero menos que quien encaja: la barra
-	# premia la agresividad sin regalar súperes por pegarle al bloqueo.
-	var gain := move.meter_block if blocked else move.meter_hit
+	_award_meter(attacker, move, result == Fighter.HitResult.BLOCKED)
+
+
+## El atacante también carga Tinta, pero menos que quien encaja: la barra
+## premia la agresividad sin regalar súperes por pegarle al bloqueo.
+func _award_meter(attacker: Fighter, hit: HitProperties, blocked: bool) -> void:
+	var gain := hit.meter_block if blocked else hit.meter_hit
 	attacker.meter = mini(attacker.stats.max_meter, attacker.meter + gain / 2)
+
+
+# --- Proyectiles -------------------------------------------------------------
+
+func _spawn_requested_projectiles() -> void:
+	for fighter in fighters:
+		for projectile_id in fighter.take_pending_spawns():
+			var data := fighter.stats.get_projectile(projectile_id)
+			if data == null:
+				push_error("Proyectil desconocido: %s" % projectile_id)
+				continue
+			var projectile := Projectile.new()
+			projectile.setup(data, fighter)
+			projectile.show_boxes = show_boxes
+			add_child(projectile)
+			projectiles.append(projectile)
+
+
+func _tick_projectiles() -> void:
+	var survivors: Array[Projectile] = []
+	for projectile in projectiles:
+		projectile.tick()
+		if not projectile.dead:
+			_check_projectile_hit(projectile)
+		if projectile.dead or absi(FP.floor_px(projectile.pos_x)) > STAGE_HALF_WIDTH:
+			projectile.queue_free()
+		else:
+			survivors.append(projectile)
+	projectiles = survivors
+
+
+func _check_projectile_hit(projectile: Projectile) -> void:
+	for defender in fighters:
+		if defender == projectile.shooter or defender.state == Fighter.State.KO:
+			continue
+		var box := projectile.world_box()
+		for hurtbox in defender.active_hurtboxes():
+			if not BoxData.overlaps(box, hurtbox.to_world(defender.pos_x, defender.pos_y, defender.facing)):
+				continue
+			var result := defender.receive_hit(projectile.data, projectile.pos_x)
+			# Un proyectil se consume aunque lo contraataquen: la Asamblea
+			# absorbe el panfleto igual que absorbe un puño.
+			projectile.dead = true
+			if result == Fighter.HitResult.COUNTERED:
+				return
+			defender.hitstop = projectile.data.hitstop
+			_award_meter(projectile.shooter, projectile.data, result == Fighter.HitResult.BLOCKED)
+			return
+
+
+func _clear_projectiles() -> void:
+	for projectile in projectiles:
+		projectile.queue_free()
+	projectiles.clear()
 
 
 func _any_in_hitstop() -> bool:
@@ -317,6 +387,12 @@ func _handle_dev_keys() -> void:
 		show_boxes = not show_boxes
 		for fighter in fighters:
 			fighter.show_boxes = show_boxes
+		for projectile in projectiles:
+			projectile.show_boxes = show_boxes
+	if Input.is_action_just_pressed(&"dev_toggle_accessible"):
+		accessible_mode = not accessible_mode
+		for fighter in fighters:
+			fighter.accessible_mode = accessible_mode
 	if Input.is_action_just_pressed(&"dev_reset"):
 		rounds_won = [0, 0]
 		_start_round(1)

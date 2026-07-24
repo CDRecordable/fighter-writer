@@ -47,10 +47,15 @@ func _draw_fighter_panel(fighter: Fighter, x: float, mirrored: bool) -> void:
 		Color(0.95, 0.83, 0.25),
 		mirrored
 	)
+	# La Tinta llena cambia de color: el jugador tiene que saber que puede
+	# gastar el súper sin apartar la vista del combate.
+	var meter_color := Color(0.35, 0.75, 1.0)
+	if fighter.has_super():
+		meter_color = Color(1.0, 0.55, 0.85)
 	_draw_bar(
 		Rect2(x, y + BAR_HEIGHT + 2.0, BAR_WIDTH * 0.75, METER_HEIGHT),
 		fighter.meter_ratio(),
-		Color(0.35, 0.75, 1.0),
+		meter_color,
 		mirrored
 	)
 	var name_pos := Vector2(x, MARGIN + 6.0)
@@ -109,11 +114,15 @@ func _draw_banner(width: float) -> void:
 
 
 func _draw_help(width: float) -> void:
+	var accessible := "sí" if arena.accessible_mode else "no"
 	var lines := [
-		"J1: WASD  ·  J K puños  ·  N M patadas",
-		"F1 cajas  ·  F2 muñeco: %s  ·  F5 reiniciar" % String(arena.dummy_mode_label),
+		"J1: WASD · J K puños · N M patadas · L especial (modo accesible)",
+		"236+P Danza Bruta · 236+K Lectura Fácil · 214+P Asamblea · 236236+P súper · →+HP agarre",
+		"F1 cajas · F2 muñeco: %s · F3 accesible: %s · F5 reiniciar" % [
+			String(arena.dummy_mode_label), accessible,
+		],
 	]
-	var y := size.y - MARGIN - 10.0
+	var y := size.y - MARGIN - 9.0 * float(lines.size() - 1)
 	for line: String in lines:
 		draw_string(
 			_font, Vector2(MARGIN, y), line,
