@@ -1,0 +1,68 @@
+{
+  "_estado": "BORRADOR — pendiente de verificación por el equipo antes de la Fase 2. La wiki es la capa educativa del juego (PLAN.md §6): cada dato de aquí acaba delante de un lector, así que nada entra sin comprobar.",
+
+  "id": "cristina_morales",
+  "display_name": "Cristina Morales",
+  "epigrafe": "La punk que baila y escribe a la contra",
+  "nacimiento": { "anio": 1985, "lugar": "Granada" },
+  "base": "Barcelona",
+  "retrato": "res://characters/cristina_morales/sprites/retrato.png",
+
+  "bibliografia": [
+    {
+      "titulo": "Los combatientes",
+      "anio": 2013,
+      "por_que": "Su debut: la voz de una veinteañera furiosa que da nombre a su súper en el juego."
+    },
+    {
+      "titulo": "Introducción a Teresa de Jesús",
+      "anio": 2015,
+      "por_que": "Reescribe a la santa como una mujer con cuerpo, deseo y ambición política."
+    },
+    {
+      "titulo": "Terroristas modernos",
+      "anio": 2017,
+      "por_que": "Novela histórica sobre la conspiración del Triángulo (1816), contada sin solemnidad."
+    },
+    {
+      "titulo": "Lectura fácil",
+      "anio": 2018,
+      "por_que": "Cuatro mujeres con discapacidad intelectual en un piso tutelado de Barcelona. Su libro más celebrado."
+    }
+  ],
+
+  "premios": [
+    { "nombre": "Premio Herralde de Novela", "anio": 2018, "obra": "Lectura fácil" },
+    { "nombre": "Premio Nacional de Narrativa", "anio": 2019, "obra": "Lectura fácil" }
+  ],
+
+  "curiosidades": [
+    "Es licenciada en Derecho: la burocracia y los informes que parodia en sus novelas los conoce de primera mano.",
+    "Además de escribir, baila: forma parte del colectivo de danza Iniciativa Sexual Femenina.",
+    "'Lectura fácil' toma su título del formato de textos adaptados para personas con dificultades de comprensión, que la novela usa y a la vez interroga."
+  ],
+
+  "cita": {
+    "texto": "",
+    "fuente": "PENDIENTE — elegir una cita corta y con atribución (derecho de cita, PLAN.md §10.5)."
+  },
+
+  "moveset_explicado": [
+    {
+      "movimiento": "Danza Bruta",
+      "por_que": "Es coreógrafa y bailarina: su especial de avance es literalmente danza-contacto usada como arma."
+    },
+    {
+      "movimiento": "Lectura Fácil",
+      "por_que": "Por su novela premiada. El proyectil es un panfleto que obliga al rival a pararse a leer."
+    },
+    {
+      "movimiento": "Asamblea",
+      "por_que": "Guiño a su militancia y al asamblearismo: el contraataque devuelve lo que le tiran."
+    },
+    {
+      "movimiento": "Los Combatientes",
+      "por_que": "Su primera novela da nombre al súper, en el que su banda punk irrumpe en el escenario."
+    }
+  ]
+}

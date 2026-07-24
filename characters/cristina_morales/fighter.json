@@ -1,0 +1,210 @@
+{
+  "_comentario": "Cristina Morales — rushdown ágil (PLAN.md §4). Velocidades en píxeles por tick a 60 ticks/s; duraciones en ticks; cajas en píxeles con x hacia delante e y hacia arriba desde los pies. Todo esto es BALANCE PROVISIONAL de la Fase 1: se toca aquí, nunca en el código.",
+
+  "id": "cristina_morales",
+  "display_name": "Cristina Morales",
+  "debug_color": "#e0326a",
+
+  "stats": {
+    "max_health": 950,
+    "max_meter": 1000,
+    "walk_forward": 1.7,
+    "walk_back": 1.25,
+    "jump_impulse": 7.4,
+    "jump_forward": 2.6,
+    "gravity": 0.4,
+    "jumpsquat": 3,
+    "landing_lag": 3,
+    "push_box": { "x": -11, "y": 0, "w": 22, "h": 70 },
+    "stand_hurtbox": { "x": -12, "y": 0, "w": 24, "h": 76 },
+    "crouch_hurtbox": { "x": -13, "y": 0, "w": 26, "h": 48 }
+  },
+
+  "moves": {
+    "stand_lp": {
+      "display_name": "Jab",
+      "stance": "stand",
+      "height": "mid",
+      "damage": 24,
+      "hitstun": 12,
+      "blockstun": 9,
+      "hitstop": 5,
+      "pushback_hit": 1.4,
+      "pushback_block": 1.0,
+      "meter_hit": 45,
+      "meter_block": 18,
+      "frames": [
+        { "duration": 3 },
+        {
+          "duration": 3,
+          "hit": [{ "x": 11, "y": 46, "w": 24, "h": 12 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 10, "y": 44, "w": 22, "h": 15 }
+          ]
+        },
+        { "duration": 5 }
+      ]
+    },
+
+    "stand_hp": {
+      "display_name": "Directo",
+      "stance": "stand",
+      "height": "mid",
+      "damage": 68,
+      "hitstun": 17,
+      "blockstun": 12,
+      "hitstop": 8,
+      "pushback_hit": 2.4,
+      "pushback_block": 1.8,
+      "self_pushback": 0.6,
+      "meter_hit": 80,
+      "meter_block": 30,
+      "frames": [
+        { "duration": 6 },
+        {
+          "duration": 4,
+          "hit": [{ "x": 12, "y": 44, "w": 30, "h": 14 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 10, "y": 42, "w": 30, "h": 17 }
+          ]
+        },
+        { "duration": 14 }
+      ]
+    },
+
+    "stand_lk": {
+      "display_name": "Puntera",
+      "stance": "stand",
+      "height": "mid",
+      "damage": 28,
+      "hitstun": 12,
+      "blockstun": 9,
+      "hitstop": 5,
+      "pushback_hit": 1.5,
+      "pushback_block": 1.1,
+      "meter_hit": 48,
+      "meter_block": 18,
+      "frames": [
+        { "duration": 4 },
+        {
+          "duration": 3,
+          "hit": [{ "x": 10, "y": 26, "w": 24, "h": 13 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 9, "y": 24, "w": 24, "h": 16 }
+          ]
+        },
+        { "duration": 7 }
+      ]
+    },
+
+    "stand_hk": {
+      "display_name": "Patada alta",
+      "stance": "stand",
+      "height": "mid",
+      "damage": 82,
+      "hitstun": 19,
+      "blockstun": 13,
+      "hitstop": 9,
+      "pushback_hit": 2.8,
+      "pushback_block": 2.0,
+      "self_pushback": 0.8,
+      "meter_hit": 90,
+      "meter_block": 34,
+      "frames": [
+        { "duration": 9 },
+        {
+          "duration": 5,
+          "hit": [{ "x": 12, "y": 38, "w": 34, "h": 18 }],
+          "hurt": [
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 10, "y": 36, "w": 34, "h": 21 }
+          ]
+        },
+        { "duration": 18 }
+      ]
+    },
+
+    "crouch_lp": {
+      "display_name": "Jab agachado",
+      "stance": "crouch",
+      "height": "mid",
+      "damage": 22,
+      "hitstun": 11,
+      "blockstun": 8,
+      "hitstop": 5,
+      "pushback_hit": 1.2,
+      "pushback_block": 0.9,
+      "meter_hit": 42,
+      "meter_block": 16,
+      "frames": [
+        { "duration": 3 },
+        {
+          "duration": 3,
+          "hit": [{ "x": 10, "y": 26, "w": 22, "h": 11 }],
+          "hurt": [
+            { "x": -13, "y": 0, "w": 26, "h": 48 },
+            { "x": 9, "y": 24, "w": 22, "h": 14 }
+          ]
+        },
+        { "duration": 6 }
+      ]
+    },
+
+    "crouch_hk": {
+      "display_name": "Barrido",
+      "stance": "crouch",
+      "height": "low",
+      "damage": 74,
+      "hitstun": 22,
+      "blockstun": 13,
+      "hitstop": 10,
+      "knockdown": true,
+      "pushback_hit": 2.2,
+      "pushback_block": 2.0,
+      "self_pushback": 0.4,
+      "meter_hit": 85,
+      "meter_block": 32,
+      "frames": [
+        { "duration": 8 },
+        {
+          "duration": 4,
+          "hit": [{ "x": 10, "y": 2, "w": 32, "h": 14 }],
+          "hurt": [
+            { "x": -13, "y": 0, "w": 26, "h": 40 },
+            { "x": 8, "y": 0, "w": 32, "h": 18 }
+          ]
+        },
+        { "duration": 20 }
+      ]
+    },
+
+    "air_hk": {
+      "display_name": "Patada saltando",
+      "stance": "air",
+      "height": "overhead",
+      "damage": 70,
+      "hitstun": 18,
+      "blockstun": 12,
+      "hitstop": 8,
+      "pushback_hit": 1.6,
+      "pushback_block": 1.2,
+      "until_land": true,
+      "meter_hit": 80,
+      "meter_block": 30,
+      "frames": [
+        { "duration": 5 },
+        {
+          "duration": 10,
+          "hit": [{ "x": 8, "y": 14, "w": 28, "h": 20 }],
+          "hurt": [
+            { "x": -12, "y": 8, "w": 24, "h": 60 },
+            { "x": 6, "y": 12, "w": 28, "h": 24 }
+          ]
+        }
+      ]
+    }
+  }
+}

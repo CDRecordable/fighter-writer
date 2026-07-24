@@ -1,0 +1,43 @@
+; Engine configuration file.
+; Writer Fighter — configuración base. Decisiones justificadas en PLAN.md §7
+; y explicadas en docs/ARQUITECTURA.md.
+
+config_version=5
+
+[application]
+
+config/name="Writer Fighter"
+config/description="Juego de lucha 2D en pixel art protagonizado por escritores españoles."
+run/main_scene="res://scenes/combat_arena.tscn"
+config/features=PackedStringArray("4.3", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+Controles="*res://src/core/input_setup.gd"
+
+[display]
+
+; Resolución interna 480x270: escala entera x4 a 1080p y x8 a 4K (PLAN.md §7).
+window/size/viewport_width=480
+window/size/viewport_height=270
+window/size/window_width_override=1440
+window/size/window_height_override=810
+window/stretch/mode="viewport"
+window/stretch/aspect="keep"
+window/stretch/scale_mode="integer"
+
+[physics]
+
+; La simulación de combate corre a 60 ticks fijos. No usamos la física del
+; motor: el luchador integra su propio movimiento en punto fijo (FP).
+common/physics_ticks_per_second=60
+common/max_physics_steps_per_frame=8
+2d/default_gravity=0.0
+
+[rendering]
+
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+; Nearest neighbour: sin esto el pixel art sale borroso.
+textures/canvas_textures/default_texture_filter=0
