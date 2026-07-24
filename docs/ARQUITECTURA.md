@@ -134,13 +134,55 @@ ilegibles: cualquier cambio de controles produce un diff imposible de revisar y
 propenso a conflictos de merge. En código es una tabla legible, y el remapeo de
 la Fase 4 se construye encima sin tocar el motor.
 
-## 9. Resolución y render
+## 9. El dibujo va por su reloj, las cajas por el suyo
+
+Un movimiento tiene dos líneas de tiempo que avanzan a la vez pero se declaran
+por separado: la de **cajas** (`frames`, con sus hurtboxes y hitboxes) y la de
+**dibujo** (`anim`, con las celdas de la hoja de sprites).
+
+Podrían haber sido una sola, y sería más difícil de desincronizar. Se han
+separado porque el cuello de botella del proyecto es el arte (PLAN.md §8) y esta
+separación evita dos bloqueos que costarían semanas:
+
+- El artista puede meter un intercalado para que un golpe se lea mejor **sin
+  tocar ni un hitbox**, así que no necesita al programador.
+- El programador puede recortar dos frames de recuperación para arreglar el
+  balance **sin pedir un dibujo nuevo**, así que no necesita al artista.
+
+El riesgo es que se desincronicen, así que el cargador compara las dos duraciones
+y avisa por consola cuando no cuadran.
+
+**Si falta la hoja de sprites, el luchador se dibuja como el rectángulo del
+prototipo gris.** No es un caso de error: es lo que permite que un personaje sin
+arte se pueda programar y probar entero, y que la Fase 3 pueda meter a Cela en el
+motor mucho antes de que exista un solo dibujo suyo.
+
+### El placeholder se genera, no se dibuja
+
+`tools/generar_placeholder.gd` produce la hoja provisional **derivándola de las
+cajas del propio personaje**: la celda de un puñetazo enseña el brazo justo donde
+está el hitbox. Un placeholder cualquiera bajado de internet haría lo contrario —
+enseñaría una animación que miente sobre lo que hace el motor, y entonces es peor
+que el rectángulo gris para juzgar si un golpe es justo.
+
+De paso le da al artista la referencia exacta de la silueta que tiene que cubrir
+cada celda.
+
+### Aviso de escala pendiente de decidir
+
+El plan (§7) pide personajes de **120-128 px de alto**. Las cajas actuales de
+Cristina miden **76 px**. La celda ya es de 128, así que el arte definitivo cabe,
+pero si se sube el personaje a la altura del plan hay que reescalar cajas,
+velocidades, salto y alcances — o sea, rehacer el balance. **Conviene decidirlo
+antes de que el artista dibuje nada.**
+
+## 10. Resolución y render
 
 480×270 interno con escalado entero (PLAN.md §7) y filtro *nearest*. Las
 posiciones se redondean al píxel al dibujar (`FP.floor_px`): sin eso el pixel art
 vibra al moverse, que es el defecto más típico de un 2D mal configurado.
 
-## 10. Lo que es deliberadamente provisional
+## 11. Lo que es deliberadamente provisional
 
 Esto se tira sin pena cuando llegue su fase:
 
@@ -154,7 +196,7 @@ Esto se tira sin pena cuando llegue su fase:
 - La correspondencia dirección→especial del modo accesible, que hay que decidir
   probándola con gente que no juega a juegos de lucha.
 
-## 11. Lo que falta para cerrar la Fase 1
+## 12. Lo que falta para cerrar la Fase 1
 
 La lista de sistemas del plan está completa. Lo que queda es criterio, no código:
 

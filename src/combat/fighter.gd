@@ -76,6 +76,12 @@ var pending_spawns: Array[StringName] = []
 ## lujo de depuración: es la única forma de juzgar si un golpe es justo.
 var show_boxes: bool = false
 
+## Tinte del sprite. Blanco = el arte tal cual. Sirve de apaño para los
+## combates en espejo, donde si no los dos luchadores son indistinguibles. La
+## solución de verdad es el cambio de paleta, como en SF2, y es trabajo de arte
+## de la Fase 2.
+var sprite_tint: Color = Color.WHITE
+
 ## Un movimiento golpea una vez por cada hit_id: así los especiales de varios
 ## golpes conectan varias veces y los normales solo una.
 var _connected_hit_ids: Array[int] = []
@@ -571,22 +577,76 @@ func update_visual() -> void:
 
 
 func _draw() -> void:
+	if not _draw_sprite():
+		_draw_gray_box()
+	if show_boxes:
+		draw_debug_boxes()
+
+
+## Dibuja la celda que toca de la hoja de sprites. Devuelve false si no hay
+## arte todavía, y entonces manda el rectángulo del prototipo gris.
+func _draw_sprite() -> bool:
+	if stats.sprites == null or not stats.sprites.is_ready():
+		return false
+	var index := _current_sprite_index()
+	if index < 0:
+		return false
+	# El volteo se hace con la transformada, no dibujando el sprite al revés:
+	# así el arte se pinta UNA vez mirando a la derecha y el motor se ocupa.
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2(float(facing), 1.0))
+	draw_texture_rect_region(
+		stats.sprites.texture,
+		stats.sprites.destination(),
+		stats.sprites.region(index),
+		_tint(sprite_tint)
+	)
+	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
+	return true
+
+
+func _draw_gray_box() -> void:
 	var body := stance_hurtbox()
-	var color := stats.debug_color
+	draw_rect(_local_rect(body), _tint(stats.debug_color))
+	# Marca de orientación: en gris no hay sprite que diga hacia dónde miras.
+	var eye_x := 2.0 if facing > 0 else -6.0
+	draw_rect(Rect2(eye_x, -float(body.y + body.h) + 6.0, 4.0, 4.0), Color(0, 0, 0, 0.75))
+
+
+## Color de estado. Con sprites es un tinte sobre el dibujo; en gris, el relleno
+## del rectángulo. En los dos casos comunica lo mismo: congelado, bloqueando o
+## encajando.
+func _tint(base: Color = Color.WHITE) -> Color:
+	var color := base
 	if hitstop > 0:
 		color = color.lightened(0.5)
 	if state == State.BLOCKSTUN:
 		color = color.lerp(Color.WHITE, 0.35)
 	elif state == State.HITSTUN or state == State.KO:
 		color = color.lerp(Color.RED, 0.45)
-	draw_rect(_local_rect(body), color)
+	return color
 
-	# Marca de orientación: en gris no hay sprite que diga hacia dónde miras.
-	var eye_x := 2.0 if facing > 0 else -6.0
-	draw_rect(Rect2(eye_x, -float(body.y + body.h) + 6.0, 4.0, 4.0), Color(0, 0, 0, 0.75))
 
-	if show_boxes:
-		draw_debug_boxes()
+func _current_sprite_index() -> int:
+	if is_attacking() and current_move.anim != null and not current_move.anim.is_empty():
+		return current_move.anim.index_at(move_frame)
+	var anim := stats.get_animation(_animation_key())
+	if anim == null or anim.is_empty():
+		return -1
+	return anim.index_at(state_frame)
+
+
+func _animation_key() -> StringName:
+	match state:
+		State.WALK_F: return &"walk_f"
+		State.WALK_B: return &"walk_b"
+		State.CROUCH: return &"crouch"
+		State.JUMPSQUAT: return &"jumpsquat"
+		State.AIR: return &"air"
+		State.LANDING: return &"landing"
+		State.HITSTUN: return &"hitstun"
+		State.BLOCKSTUN: return &"blockstun_low" if blocking_low else &"blockstun"
+		State.KO: return &"ko"
+		_: return &"idle"
 
 
 ## Convierte una BoxData (x adelante, y arriba) al espacio local del nodo,

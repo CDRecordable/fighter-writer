@@ -31,6 +31,12 @@ var moves: Dictionary = {}
 ## StringName -> ProjectileData
 var projectiles: Dictionary = {}
 
+## Hoja de sprites y animaciones de estado (idle, andar, hitstun...). Las de
+## los movimientos viven en cada MoveData.
+var sprites: SpriteSet = null
+## StringName -> AnimationData
+var animations: Dictionary = {}
+
 ## Los movimientos que se invocan con dirección + botón (súper, especiales,
 ## agarres), ya ordenados por dificultad de entrada. El orden importa: si un
 ## 236 se probara antes que el 236236 que lo contiene, el súper no saldría
@@ -69,6 +75,13 @@ static func from_dict(d: Dictionary) -> FighterStats:
 				stats.command_moves.append(move)
 	stats.command_moves.sort_custom(_more_demanding_first)
 
+	stats.sprites = SpriteSet.from_dict(String(stats.id), d.get("sprites", {}))
+	var raw_animations: Dictionary = d.get("animations", {})
+	for anim_name: String in raw_animations.keys():
+		var raw: Variant = raw_animations[anim_name]
+		if raw is Dictionary:
+			stats.animations[StringName(anim_name)] = AnimationData.from_dict(raw)
+
 	var raw_projectiles: Dictionary = d.get("projectiles", {})
 	for projectile_id: String in raw_projectiles.keys():
 		var raw: Variant = raw_projectiles[projectile_id]
@@ -89,6 +102,15 @@ func get_move(move_id: StringName) -> MoveData:
 
 func get_projectile(projectile_id: StringName) -> ProjectileData:
 	return projectiles.get(projectile_id, null)
+
+
+## Animación de estado. Si falta la pedida se cae a "idle": un personaje a
+## medio animar se ve raro, pero se puede jugar y probar.
+func get_animation(key: StringName) -> AnimationData:
+	var anim: AnimationData = animations.get(key, null)
+	if anim == null:
+		anim = animations.get(&"idle", null)
+	return anim
 
 
 ## Traduce postura + botón al id de movimiento. El nombre es un convenio, no

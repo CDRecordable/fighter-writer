@@ -60,6 +60,8 @@ jugona antes de cerrarla.
   golpe salga en cuanto puedes actuar.
 - **Especiales, súper, agarre y contraataque**, todos definidos en datos.
 - **Proyectiles** con las mismas reglas de impacto que un puñetazo.
+- **Capa de sprites** en datos, con vuelta automática al rectángulo si falta el
+  arte, y un generador de hoja provisional derivada de las propias cajas.
 - Pushboxes, límites de escenario, cámara que sigue a los dos.
 - Rondas al mejor de 3, reloj de 99 s, K.O. y victoria por tiempo.
 - IA de pruebas determinista (la IA de verdad es de la Fase 3).
@@ -68,6 +70,65 @@ jugona antes de cerrarla.
 el hito real del plan es *"dos rectángulos se pegan y ES DIVERTIDO"*, y eso se
 decide jugando. Los números de `fighter.json` son una primera pasada y están para
 tocarlos.
+
+## Arte: cómo meter sprites
+
+Un personaje se dibuja desde una **hoja de sprites** en rejilla, declarada en su
+`fighter.json`:
+
+```json
+"sprites": {
+  "sheet": "sprites/cristina_placeholder.png",
+  "cell":  { "w": 128, "h": 128 },
+  "pivot": { "x": 44, "y": 116 },
+  "columns": 8
+}
+```
+
+Reglas del formato, y son innegociables porque el motor cuenta con ellas:
+
+- **Celdas todas del mismo tamaño**, en rejilla, leídas de izquierda a derecha y
+  de arriba abajo empezando en 0.
+- El **pivote** es el punto de la celda que se apoya en los pies del personaje.
+  Es lo que alinea el dibujo con las hitboxes.
+- Todo se dibuja **mirando a la derecha**. El motor voltea; no se dibuja nunca la
+  versión espejo (sería el doble de trabajo para nada).
+
+Cada animación dice qué celdas usa y cuánto dura cada una, en ticks:
+
+```json
+"animations": { "idle": { "frames": [0,1,2,3], "hold": 8, "loop": true } }
+```
+
+y cada movimiento lleva la suya:
+
+```json
+"anim": { "frames": [30, 31, 32], "holds": [9, 5, 18] }
+```
+
+Las duraciones del dibujo van **desacopladas** de las de las cajas: el artista
+puede meter un intercalado sin tocar un hitbox, y el programador puede recortar
+frames de recuperación sin pedir un dibujo nuevo. Si las dos sumas no cuadran, el
+cargador avisa por consola.
+
+**Si falta la hoja, no pasa nada:** el luchador se dibuja como el rectángulo del
+prototipo gris y el juego funciona igual. Arte y programación pueden avanzar por
+separado.
+
+### La hoja provisional
+
+`characters/cristina_morales/sprites/cristina_placeholder.png` **no está dibujada
+a mano: se genera** a partir de las propias cajas del personaje.
+
+```bash
+godot --headless --path . --script res://tools/generar_placeholder.gd
+```
+
+La celda de un puñetazo enseña el brazo exactamente donde está el hitbox, y la de
+un barrido la pierna donde está el barrido. Sirve para dos cosas: probar la
+tubería de arte con algo que no miente sobre lo que hace el motor, y darle al
+artista la referencia exacta de qué silueta tiene que cubrir cada celda para que
+el golpe sea legible. Cuando entregue su PNG, se sustituye el archivo.
 
 ## Pruebas
 

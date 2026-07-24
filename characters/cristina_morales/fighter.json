@@ -20,9 +20,33 @@
     "crouch_hurtbox": { "x": -13, "y": 0, "w": 26, "h": 48 }
   },
 
+  "_comentario_sprites": "El pivote es el punto de la celda que se apoya en los pies del personaje. Todo el arte se dibuja MIRANDO A LA DERECHA; el motor voltea solo. Si falta la hoja, el luchador se dibuja como el rectángulo del prototipo gris y el juego funciona igual.",
+
+  "sprites": {
+    "sheet": "sprites/cristina_placeholder.png",
+    "cell": { "w": 128, "h": 128 },
+    "pivot": { "x": 44, "y": 116 },
+    "columns": 8
+  },
+
+  "animations": {
+    "idle": { "frames": [0, 1, 2, 3], "hold": 8, "loop": true },
+    "walk_f": { "frames": [4, 5, 6, 7], "hold": 6, "loop": true },
+    "walk_b": { "frames": [8, 9, 10, 11], "hold": 6, "loop": true },
+    "crouch": { "frames": [12], "hold": 1 },
+    "jumpsquat": { "frames": [13], "hold": 1 },
+    "air": { "frames": [14, 15], "hold": 10, "loop": true },
+    "landing": { "frames": [16], "hold": 1 },
+    "hitstun": { "frames": [17], "hold": 1 },
+    "blockstun": { "frames": [18], "hold": 1 },
+    "blockstun_low": { "frames": [19], "hold": 1 },
+    "ko": { "frames": [20], "hold": 1 }
+  },
+
   "moves": {
     "stand_lp": {
       "display_name": "Jab",
+      "anim": { "frames": [21, 22, 23], "holds": [3, 3, 5] },
       "stance": "stand",
       "height": "mid",
       "damage": 24,
@@ -49,6 +73,7 @@
 
     "stand_hp": {
       "display_name": "Directo",
+      "anim": { "frames": [24, 25, 26], "holds": [6, 4, 14] },
       "stance": "stand",
       "height": "mid",
       "damage": 68,
@@ -76,6 +101,7 @@
 
     "stand_lk": {
       "display_name": "Puntera",
+      "anim": { "frames": [27, 28, 29], "holds": [4, 3, 7] },
       "stance": "stand",
       "height": "mid",
       "damage": 28,
@@ -102,6 +128,7 @@
 
     "stand_hk": {
       "display_name": "Patada alta",
+      "anim": { "frames": [30, 31, 32], "holds": [9, 5, 18] },
       "stance": "stand",
       "height": "mid",
       "damage": 82,
@@ -129,6 +156,7 @@
 
     "crouch_lp": {
       "display_name": "Jab agachado",
+      "anim": { "frames": [33, 34, 35], "holds": [3, 3, 6] },
       "stance": "crouch",
       "height": "mid",
       "damage": 22,
@@ -155,6 +183,7 @@
 
     "crouch_hk": {
       "display_name": "Barrido",
+      "anim": { "frames": [36, 37, 38], "holds": [8, 4, 20] },
       "stance": "crouch",
       "height": "low",
       "damage": 74,
@@ -183,6 +212,7 @@
 
     "air_hk": {
       "display_name": "Patada saltando",
+      "anim": { "frames": [39, 40], "holds": [5, 10] },
       "stance": "air",
       "height": "overhead",
       "damage": 70,
@@ -211,6 +241,7 @@
 
     "agarre": {
       "display_name": "Agarre",
+      "anim": { "frames": [41, 42, 43], "holds": [2, 2, 24] },
       "stance": "stand",
       "motion": "6",
       "button": "hp",
@@ -239,6 +270,7 @@
 
     "danza_bruta": {
       "display_name": "Danza Bruta",
+      "anim": { "frames": [44, 45, 46, 47, 48], "holds": [8, 3, 8, 9, 22] },
       "stance": "stand",
       "motion": "236",
       "button": "p",
@@ -291,6 +323,7 @@
 
     "lectura_facil": {
       "display_name": "Lectura Fácil",
+      "anim": { "frames": [49, 50, 51], "holds": [10, 4, 24] },
       "stance": "stand",
       "motion": "236",
       "button": "k",
@@ -303,6 +336,7 @@
 
     "asamblea": {
       "display_name": "Asamblea",
+      "anim": { "frames": [52, 53, 54], "holds": [3, 14, 14] },
       "stance": "stand",
       "motion": "214",
       "button": "p",
@@ -321,6 +355,7 @@
 
     "asamblea_respuesta": {
       "display_name": "Patada okupa",
+      "anim": { "frames": [55, 56, 57], "holds": [4, 4, 18] },
       "stance": "stand",
       "height": "mid",
       "damage": 95,
@@ -346,6 +381,7 @@
 
     "super_combatientes": {
       "display_name": "Los Combatientes",
+      "anim": { "frames": [58, 59, 60, 61, 62], "holds": [6, 3, 7, 7, 39] },
       "stance": "stand",
       "motion": "236236",
       "button": "p",

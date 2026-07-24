@@ -49,6 +49,10 @@ var counter_move: StringName = &""
 ## se comprueba: si no, un 236 se comería siempre al 236236 que lo contiene.
 var priority: int = 0
 
+## Qué se dibuja mientras dura. Puede faltar: sin animación el luchador se
+## dibuja como el rectángulo del prototipo gris y el movimiento funciona igual.
+var anim: AnimationData = null
+
 
 static func from_dict(id_in: StringName, d: Dictionary) -> MoveData:
 	var move := MoveData.new()
@@ -80,6 +84,16 @@ static func from_dict(id_in: StringName, d: Dictionary) -> MoveData:
 		move.counter_move = StringName(String(counter.get("move", "")))
 
 	move.priority = move._compute_priority()
+
+	var raw_anim: Variant = d.get("anim", null)
+	if raw_anim is Dictionary:
+		move.anim = AnimationData.from_dict(raw_anim)
+		if move.anim.total != move.total_frames():
+			# Aviso, no error: durante la producción es normal que el arte vaya
+			# por detrás de los frame data. Pero conviene enterarse.
+			push_warning("Movimiento '%s': la animación dura %d ticks y el movimiento %d." % [
+				move.id, move.anim.total, move.total_frames(),
+			])
 	return move
 
 

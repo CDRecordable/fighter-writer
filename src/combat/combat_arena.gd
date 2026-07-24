@@ -77,6 +77,9 @@ func _build_fighters() -> void:
 			stats.debug_color = Color(0.18, 0.71, 0.77)
 			dummy = Agents.Dummy.new()
 			fighter.setup(stats, dummy, index)
+			# En espejo los dos usan la misma hoja: sin esto son el mismo
+			# muñeco y no sabes a quién estás moviendo.
+			fighter.sprite_tint = Color(0.45, 0.85, 1.0)
 		else:
 			fighter.setup(stats, Agents.Human.new(1), index)
 		add_child(fighter)
