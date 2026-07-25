@@ -1,0 +1,60 @@
+{
+  "_comentario": "Arte de terceros que NO puede ir en el repositorio. Este archivo sí se versiona: es la lista de qué se usa, de dónde sale y bajo qué licencia. Los archivos viven en assets_externos/, que está en .gitignore.",
+
+  "_comentario_por_que": "Varias licencias buenas (CC-BY de itch.io, OGA-BY) permiten usar el arte en un juego comercial pero prohíben REDISTRIBUIR los archivos. Como este repositorio es público, subir esos PNG sería redistribuirlos. Separándolos, el equipo los usa y el repositorio sigue limpio. El juego arranca sin ellos: los sprites caen al rectángulo y las capas que falten se saltan con un aviso.",
+
+  "_comentario_atribucion": "Aunque los archivos no se versionen, la ATRIBUCIÓN sigue siendo obligatoria al publicar el juego. tools/generar_creditos.gd mete en CREDITOS.md los que estén realmente presentes en disco.",
+
+  "destino": "assets_externos",
+
+  "assets": [
+    {
+      "id": "craftpix_ocean_sky",
+      "obra": "Pixel Ocean and Sky Background",
+      "autor": "CraftPix.net 2D Game Assets",
+      "licencia": "OGA-BY 3.0",
+      "url": "https://opengameart.org/content/pixel-ocean-and-sky-background",
+      "descarga": "https://opengameart.org/sites/default/files/pixel_ocean_and_sky_background.zip",
+      "archivo": "pixel_ocean_and_sky_background.zip",
+      "extraer": true,
+      "para": "Cielo y mar del galeón. 576x324, casi exacto a nuestra resolución interna.",
+      "aviso": "Exige atribución. Su licencia restringe redistribuir los archivos."
+    },
+    {
+      "id": "craftpix_sunset_clouds",
+      "obra": "Sunset Clouds Over The Sea Pixel Background",
+      "autor": "CraftPix.net 2D Game Assets",
+      "licencia": "OGA-BY 3.0",
+      "url": "https://opengameart.org/content/sunset-clouds-over-the-sea-pixel-background",
+      "descarga": "https://opengameart.org/sites/default/files/sunset_clouds_over_the_sea_pixel_background.zip",
+      "archivo": "sunset_clouds_over_the_sea_pixel_background.zip",
+      "extraer": true,
+      "para": "Alternativa de cielo al atardecer para el galeón.",
+      "aviso": "Exige atribución. Su licencia restringe redistribuir los archivos."
+    },
+    {
+      "id": "hitspark_fx",
+      "obra": "Hitspark FX",
+      "autor": "jasontomlee",
+      "licencia": "CC BY 4.0",
+      "url": "https://jasontomlee.itch.io/hitspark-fx",
+      "descarga": "",
+      "archivo": "hitspark_fx.zip",
+      "manual": "itch.io genera un enlace de descarga temporal por sesión, así que no se puede automatizar. Abre la página, pulsa Download (precio libre, puedes poner 0) y guarda el zip con este nombre en assets_externos/.",
+      "para": "Chispas de impacto hechas específicamente para juegos de lucha.",
+      "aviso": "Dice literalmente 'You may not redistribute and resell these assets'. Uso comercial permitido, redistribución no."
+    },
+    {
+      "id": "codemanu_vfx",
+      "obra": "Free VFX Asset Pack",
+      "autor": "CodeManu",
+      "licencia": "CC BY 4.0 (ver aviso)",
+      "url": "https://codemanu.itch.io/vfx-free-pack",
+      "descarga": "",
+      "archivo": "codemanu_vfx_free_pack.zip",
+      "manual": "Igual que el anterior: descarga desde la página de itch.io y guarda el zip con este nombre.",
+      "para": "22 efectos: polvo, impactos, destellos.",
+      "aviso": "La licencia se contradice: los metadatos de itch dicen CC BY 4.0 y la descripción dice 'public domain, no credit required'. Ante la duda, tratar como CC BY 4.0 y atribuir."
+    }
+  ]
+}

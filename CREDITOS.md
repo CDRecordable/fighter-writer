@@ -11,6 +11,10 @@
 - **Spark effect** — kurohina · CC0 1.0 (dominio público) · [origen](https://opengameart.org/content/spark-effect)
   - Modificaciones: ninguno; se usan las tiras tal cual
   - Usado en: `res://assets/vfx/vfx.json`
+- **Pixel Ocean and Sky Background** — CraftPix.net 2D Game Assets · OGA-BY 3.0 · [origen](https://opengameart.org/content/pixel-ocean-and-sky-background)
+  - Usado en: `res://tools/assets_externos.json`
+- **Sunset Clouds Over The Sea Pixel Background** — CraftPix.net 2D Game Assets · OGA-BY 3.0 · [origen](https://opengameart.org/content/sunset-clouds-over-the-sea-pixel-background)
+  - Usado en: `res://tools/assets_externos.json`
 
 ## Sin créditos declarados
 

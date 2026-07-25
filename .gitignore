@@ -14,6 +14,13 @@ export/
 # Aseprite backups
 *.aseprite-backup
 
+# Arte de terceros con licencia que prohíbe redistribuir los archivos.
+# Se declara en tools/assets_externos.json y se baja con:
+#   godot --headless --path . --script res://tools/bajar_assets.gd
+# El juego arranca sin ellos (cae al arte generado), así que un clon limpio
+# funciona igual.
+assets_externos/
+
 # Herramientas locales
 .claude/settings.local.json
 

@@ -19,6 +19,7 @@ extends SceneTree
 const CARPETAS := ["res://stages", "res://characters", "res://assets"]
 const ARCHIVOS := ["stage.json", "fighter.json", "vfx.json"]
 const SALIDA := "res://CREDITOS.md"
+const MANIFIESTO_EXTERNOS := "res://tools/assets_externos.json"
 
 var _finished := false
 
@@ -32,6 +33,7 @@ func _process(_delta: float) -> bool:
 	var sin_creditos: Array[String] = []
 	for raiz: String in CARPETAS:
 		_recoger(raiz, entradas, sin_creditos)
+	_recoger_externos(entradas)
 
 	var texto := _componer(entradas, sin_creditos)
 	var archivo := FileAccess.open(SALIDA, FileAccess.WRITE)
@@ -70,6 +72,34 @@ func _recoger(raiz: String, entradas: Array[Dictionary], sin_creditos: Array[Str
 					var copia: Dictionary = (entrada as Dictionary).duplicate()
 					copia["_origen"] = ruta
 					entradas.append(copia)
+
+
+## Los assets externos (tools/assets_externos.json) no viven en el repositorio,
+## pero si están bajados sí viajan en la build, así que hay que acreditarlos.
+## Solo se listan los que están REALMENTE en disco: acreditar algo que no se
+## distribuye confundiría a quien lea los créditos.
+func _recoger_externos(entradas: Array[Dictionary]) -> void:
+	if not FileAccess.file_exists(MANIFIESTO_EXTERNOS):
+		return
+	var datos: Variant = JSON.parse_string(FileAccess.get_file_as_string(MANIFIESTO_EXTERNOS))
+	if not (datos is Dictionary):
+		return
+	var carpeta := "res://%s" % String((datos as Dictionary).get("destino", "assets_externos"))
+	for raw: Variant in (datos as Dictionary).get("assets", []):
+		if not (raw is Dictionary):
+			continue
+		var asset: Dictionary = raw
+		var ruta := "%s/%s" % [carpeta, String(asset.get("archivo", ""))]
+		if not FileAccess.file_exists(ruta):
+			continue
+		entradas.append({
+			"obra": asset.get("obra", ""),
+			"autor": asset.get("autor", ""),
+			"licencia": asset.get("licencia", ""),
+			"url": asset.get("url", ""),
+			"cambios": asset.get("cambios", ""),
+			"_origen": MANIFIESTO_EXTERNOS,
+		})
 
 
 func _componer(entradas: Array[Dictionary], sin_creditos: Array[String]) -> String:

@@ -189,6 +189,37 @@ godot --headless --path . --script res://tools/generar_creditos.gd
 Escribe [CREDITOS.md](CREDITOS.md) y **avisa de los archivos que no declaran
 créditos**, para que un asset no se cuele sin atribución.
 
+### Arte que no puede ir en el repositorio
+
+Varias licencias buenas (CC-BY de itch.io, OGA-BY) permiten usar el arte en el
+juego pero **prohíben redistribuir los archivos**. Como este repositorio es
+público, subir esos PNG sería redistribuirlos.
+
+Esos assets se declaran en [tools/assets_externos.json](tools/assets_externos.json)
+—qué se usa, de dónde sale, bajo qué licencia— y los archivos van a
+`assets_externos/`, que está en `.gitignore`. Declarar no es redistribuir.
+
+Después de clonar:
+
+```bash
+godot --headless --path . --script res://tools/bajar_assets.gd
+```
+
+Baja lo que puede y da instrucciones exactas para lo que no (itch.io genera
+enlaces temporales por sesión, así que esos hay que bajarlos a mano). Luego hace
+falta reimportar:
+
+```bash
+godot --headless --path . --import
+```
+
+**Un clon sin estos assets arranca igual**: los sprites que falten caen al
+rectángulo y las capas que falten se saltan con un aviso. Nadie se queda
+bloqueado por no tener el arte.
+
+`generar_creditos.gd` mete en CREDITOS.md los assets externos **que estén
+realmente en disco**, porque son los que acaban viajando en la build.
+
 ## Pruebas
 
 Prueba de humo del combate, sin ventana (verificada con Godot 4.7.1):
