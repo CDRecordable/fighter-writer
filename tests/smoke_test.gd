@@ -146,11 +146,8 @@ func _test_salto_vuelve_al_suelo() -> void:
 	agent.hold(0, 0)
 	_run(arena, 20)
 
-	# Rango atado a la escala del personaje (114 px de alto): un salto tiene que
-	# levantar cerca de su propia estatura. Si alguien cambia la escala y no
-	# reescala la gravedad, esta prueba lo caza.
-	_check("el salto alcanza una altura razonable (85-125 px)",
-		FP.to_px(apex) > 85.0 and FP.to_px(apex) < 125.0)
+	_check("el salto alcanza una altura razonable (50-90 px)",
+		FP.to_px(apex) > 50.0 and FP.to_px(apex) < 90.0)
 	_check("después de saltar se vuelve al suelo", not jumper.airborne and jumper.pos_y == 0)
 	arena.free()
 

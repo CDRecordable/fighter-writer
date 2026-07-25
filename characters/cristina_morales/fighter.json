@@ -1,8 +1,6 @@
 {
   "_comentario": "Cristina Morales — rushdown ágil (PLAN.md §4). Velocidades en píxeles por tick a 60 ticks/s; duraciones en ticks; cajas en píxeles con x hacia delante e y hacia arriba desde los pies. Todo esto es BALANCE PROVISIONAL de la Fase 1: se toca aquí, nunca en el código.",
 
-  "_comentario_escala": "Escala 1,5x respecto al primer prototipo: la hurtbox de pie mide 114 px para que el sprite acabado quede en los 120-128 px que pide PLAN.md §7. Se escaló TODO a la vez (cajas, velocidades, gravedad, empujes, alcances), así que la geometría del combate es la misma; lo que cambia es cuánta pantalla ocupa el personaje, que es justo el objetivo. Si se vuelve a tocar la escala, hay que tocarlo todo otra vez o el balance se rompe en silencio.",
-
   "id": "cristina_morales",
   "display_name": "Cristina Morales",
   "debug_color": "#e0326a",
@@ -10,24 +8,24 @@
   "stats": {
     "max_health": 950,
     "max_meter": 1000,
-    "walk_forward": 2.55,
-    "walk_back": 1.9,
-    "jump_impulse": 11.1,
-    "jump_forward": 3.9,
-    "gravity": 0.6,
+    "walk_forward": 1.7,
+    "walk_back": 1.25,
+    "jump_impulse": 7.4,
+    "jump_forward": 2.6,
+    "gravity": 0.4,
     "jumpsquat": 3,
     "landing_lag": 3,
-    "push_box": { "x": -17, "y": 0, "w": 34, "h": 105 },
-    "stand_hurtbox": { "x": -18, "y": 0, "w": 36, "h": 114 },
-    "crouch_hurtbox": { "x": -19, "y": 0, "w": 38, "h": 72 }
+    "push_box": { "x": -11, "y": 0, "w": 22, "h": 70 },
+    "stand_hurtbox": { "x": -12, "y": 0, "w": 24, "h": 76 },
+    "crouch_hurtbox": { "x": -13, "y": 0, "w": 26, "h": 48 }
   },
 
   "_comentario_sprites": "El pivote es el punto de la celda que se apoya en los pies del personaje. Todo el arte se dibuja MIRANDO A LA DERECHA; el motor voltea solo. Si falta la hoja, el luchador se dibuja como el rectángulo del prototipo gris y el juego funciona igual.",
 
   "sprites": {
     "sheet": "sprites/cristina_placeholder.png",
-    "cell": { "w": 160, "h": 160 },
-    "pivot": { "x": 56, "y": 148 },
+    "cell": { "w": 128, "h": 128 },
+    "pivot": { "x": 44, "y": 116 },
     "columns": 8
   },
 
@@ -55,18 +53,18 @@
       "hitstun": 12,
       "blockstun": 9,
       "hitstop": 5,
-      "pushback_hit": 2.1,
-      "pushback_block": 1.5,
+      "pushback_hit": 1.4,
+      "pushback_block": 1.0,
       "meter_hit": 45,
       "meter_block": 18,
       "frames": [
         { "duration": 3 },
         {
           "duration": 3,
-          "hit": [{ "x": 17, "y": 69, "w": 36, "h": 18 }],
+          "hit": [{ "x": 11, "y": 46, "w": 24, "h": 12 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 15, "y": 66, "w": 33, "h": 23 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 10, "y": 44, "w": 22, "h": 15 }
           ]
         },
         { "duration": 5 }
@@ -82,19 +80,19 @@
       "hitstun": 17,
       "blockstun": 12,
       "hitstop": 8,
-      "pushback_hit": 3.6,
-      "pushback_block": 2.7,
-      "self_pushback": 0.9,
+      "pushback_hit": 2.4,
+      "pushback_block": 1.8,
+      "self_pushback": 0.6,
       "meter_hit": 80,
       "meter_block": 30,
       "frames": [
         { "duration": 6 },
         {
           "duration": 4,
-          "hit": [{ "x": 18, "y": 66, "w": 45, "h": 21 }],
+          "hit": [{ "x": 12, "y": 44, "w": 30, "h": 14 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 15, "y": 63, "w": 45, "h": 26 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 10, "y": 42, "w": 30, "h": 17 }
           ]
         },
         { "duration": 14 }
@@ -110,18 +108,18 @@
       "hitstun": 12,
       "blockstun": 9,
       "hitstop": 5,
-      "pushback_hit": 2.25,
-      "pushback_block": 1.65,
+      "pushback_hit": 1.5,
+      "pushback_block": 1.1,
       "meter_hit": 48,
       "meter_block": 18,
       "frames": [
         { "duration": 4 },
         {
           "duration": 3,
-          "hit": [{ "x": 15, "y": 39, "w": 36, "h": 20 }],
+          "hit": [{ "x": 10, "y": 26, "w": 24, "h": 13 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 14, "y": 36, "w": 36, "h": 24 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 9, "y": 24, "w": 24, "h": 16 }
           ]
         },
         { "duration": 7 }
@@ -137,19 +135,19 @@
       "hitstun": 19,
       "blockstun": 13,
       "hitstop": 9,
-      "pushback_hit": 4.2,
-      "pushback_block": 3.0,
-      "self_pushback": 1.2,
+      "pushback_hit": 2.8,
+      "pushback_block": 2.0,
+      "self_pushback": 0.8,
       "meter_hit": 90,
       "meter_block": 34,
       "frames": [
         { "duration": 9 },
         {
           "duration": 5,
-          "hit": [{ "x": 18, "y": 57, "w": 51, "h": 27 }],
+          "hit": [{ "x": 12, "y": 38, "w": 34, "h": 18 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 15, "y": 54, "w": 51, "h": 32 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 10, "y": 36, "w": 34, "h": 21 }
           ]
         },
         { "duration": 18 }
@@ -165,18 +163,18 @@
       "hitstun": 11,
       "blockstun": 8,
       "hitstop": 5,
-      "pushback_hit": 1.8,
-      "pushback_block": 1.35,
+      "pushback_hit": 1.2,
+      "pushback_block": 0.9,
       "meter_hit": 42,
       "meter_block": 16,
       "frames": [
         { "duration": 3 },
         {
           "duration": 3,
-          "hit": [{ "x": 15, "y": 39, "w": 33, "h": 17 }],
+          "hit": [{ "x": 10, "y": 26, "w": 22, "h": 11 }],
           "hurt": [
-            { "x": -19, "y": 0, "w": 38, "h": 72 },
-            { "x": 14, "y": 36, "w": 33, "h": 21 }
+            { "x": -13, "y": 0, "w": 26, "h": 48 },
+            { "x": 9, "y": 24, "w": 22, "h": 14 }
           ]
         },
         { "duration": 6 }
@@ -193,19 +191,19 @@
       "blockstun": 13,
       "hitstop": 10,
       "knockdown": true,
-      "pushback_hit": 3.3,
-      "pushback_block": 3.0,
-      "self_pushback": 0.6,
+      "pushback_hit": 2.2,
+      "pushback_block": 2.0,
+      "self_pushback": 0.4,
       "meter_hit": 85,
       "meter_block": 32,
       "frames": [
         { "duration": 8 },
         {
           "duration": 4,
-          "hit": [{ "x": 15, "y": 3, "w": 48, "h": 21 }],
+          "hit": [{ "x": 10, "y": 2, "w": 32, "h": 14 }],
           "hurt": [
-            { "x": -19, "y": 0, "w": 38, "h": 60 },
-            { "x": 12, "y": 0, "w": 48, "h": 27 }
+            { "x": -13, "y": 0, "w": 26, "h": 40 },
+            { "x": 8, "y": 0, "w": 32, "h": 18 }
           ]
         },
         { "duration": 20 }
@@ -221,8 +219,8 @@
       "hitstun": 18,
       "blockstun": 12,
       "hitstop": 8,
-      "pushback_hit": 2.4,
-      "pushback_block": 1.8,
+      "pushback_hit": 1.6,
+      "pushback_block": 1.2,
       "until_land": true,
       "meter_hit": 80,
       "meter_block": 30,
@@ -230,10 +228,10 @@
         { "duration": 5 },
         {
           "duration": 10,
-          "hit": [{ "x": 12, "y": 21, "w": 42, "h": 30 }],
+          "hit": [{ "x": 8, "y": 14, "w": 28, "h": 20 }],
           "hurt": [
-            { "x": -18, "y": 12, "w": 36, "h": 90 },
-            { "x": 9, "y": 18, "w": 42, "h": 36 }
+            { "x": -12, "y": 8, "w": 24, "h": 60 },
+            { "x": 6, "y": 12, "w": 28, "h": 24 }
           ]
         }
       ]
@@ -247,7 +245,7 @@
       "stance": "stand",
       "motion": "6",
       "button": "hp",
-      "max_range": 60,
+      "max_range": 40,
       "requires_grounded_target": true,
       "unblockable": true,
       "height": "mid",
@@ -255,14 +253,14 @@
       "hitstun": 26,
       "hitstop": 12,
       "knockdown": true,
-      "pushback_hit": 4.8,
+      "pushback_hit": 3.2,
       "meter_hit": 70,
       "frames": [
         { "duration": 2 },
         {
           "duration": 2,
-          "hit": [{ "x": 12, "y": 30, "w": 45, "h": 60 }],
-          "hurt": [{ "x": -18, "y": 0, "w": 45, "h": 114 }]
+          "hit": [{ "x": 8, "y": 20, "w": 30, "h": 40 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 30, "h": 76 }]
         },
         { "duration": 24 }
       ]
@@ -281,8 +279,8 @@
       "hitstun": 14,
       "blockstun": 10,
       "hitstop": 5,
-      "pushback_hit": 1.35,
-      "pushback_block": 2.1,
+      "pushback_hit": 0.9,
+      "pushback_block": 1.4,
       "meter_hit": 40,
       "meter_block": 16,
       "frames": [
@@ -290,33 +288,33 @@
         {
           "duration": 3,
           "hit_id": 1,
-          "vel_x": 4.8,
-          "hit": [{ "x": 12, "y": 39, "w": 39, "h": 39 }],
+          "vel_x": 3.2,
+          "hit": [{ "x": 8, "y": 26, "w": 26, "h": 26 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 12, "y": 36, "w": 39, "h": 45 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 24, "w": 26, "h": 30 }
           ]
         },
-        { "duration": 5, "vel_x": 1.8 },
+        { "duration": 5, "vel_x": 1.2 },
         {
           "duration": 3,
           "hit_id": 2,
-          "vel_x": 4.5,
-          "hit": [{ "x": 12, "y": 45, "w": 39, "h": 39 }],
+          "vel_x": 3.0,
+          "hit": [{ "x": 8, "y": 30, "w": 26, "h": 26 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 12, "y": 42, "w": 39, "h": 45 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 28, "w": 26, "h": 30 }
           ]
         },
-        { "duration": 5, "vel_x": 1.5 },
+        { "duration": 5, "vel_x": 1.0 },
         {
           "duration": 4,
           "hit_id": 3,
-          "vel_x": 3.9,
-          "hit": [{ "x": 12, "y": 30, "w": 45, "h": 51 }],
+          "vel_x": 2.6,
+          "hit": [{ "x": 8, "y": 20, "w": 30, "h": 34 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 12, "y": 27, "w": 45, "h": 57 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 18, "w": 30, "h": 38 }
           ]
         },
         { "duration": 22 }
@@ -347,7 +345,7 @@
         { "duration": 3 },
         {
           "duration": 14,
-          "hurt": [{ "x": -19, "y": 0, "w": 38, "h": 105 }]
+          "hurt": [{ "x": -13, "y": 0, "w": 26, "h": 70 }]
         },
         { "duration": 14 }
       ]
@@ -365,16 +363,16 @@
       "blockstun": 14,
       "hitstop": 11,
       "knockdown": true,
-      "pushback_hit": 3.9,
+      "pushback_hit": 2.6,
       "meter_hit": 90,
       "frames": [
         { "duration": 4 },
         {
           "duration": 4,
-          "hit": [{ "x": 12, "y": 36, "w": 51, "h": 45 }],
+          "hit": [{ "x": 8, "y": 24, "w": 34, "h": 30 }],
           "hurt": [
-            { "x": -18, "y": 0, "w": 36, "h": 114 },
-            { "x": 12, "y": 33, "w": 51, "h": 51 }
+            { "x": -12, "y": 0, "w": 24, "h": 76 },
+            { "x": 8, "y": 22, "w": 34, "h": 34 }
           ]
         },
         { "duration": 18 }
@@ -394,8 +392,8 @@
       "hitstun": 16,
       "blockstun": 12,
       "hitstop": 6,
-      "pushback_hit": 0.9,
-      "pushback_block": 2.4,
+      "pushback_hit": 0.6,
+      "pushback_block": 1.6,
       "meter_hit": 0,
       "meter_block": 0,
       "frames": [
@@ -403,32 +401,32 @@
         {
           "duration": 3,
           "hit_id": 1,
-          "vel_x": 3.6,
-          "hit": [{ "x": 9, "y": 30, "w": 51, "h": 60 }],
-          "hurt": [{ "x": -18, "y": 0, "w": 36, "h": 114 }]
+          "vel_x": 2.4,
+          "hit": [{ "x": 6, "y": 20, "w": 34, "h": 40 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
         },
         { "duration": 4 },
         {
           "duration": 3,
           "hit_id": 2,
-          "vel_x": 3.3,
-          "hit": [{ "x": 9, "y": 36, "w": 57, "h": 60 }],
-          "hurt": [{ "x": -18, "y": 0, "w": 36, "h": 114 }]
+          "vel_x": 2.2,
+          "hit": [{ "x": 6, "y": 24, "w": 38, "h": 40 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
         },
         { "duration": 4 },
         {
           "duration": 3,
           "hit_id": 3,
-          "vel_x": 3.0,
-          "hit": [{ "x": 9, "y": 24, "w": 63, "h": 69 }],
-          "hurt": [{ "x": -18, "y": 0, "w": 36, "h": 114 }]
+          "vel_x": 2.0,
+          "hit": [{ "x": 6, "y": 16, "w": 42, "h": 46 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
         },
         { "duration": 5 },
         {
           "duration": 4,
           "hit_id": 4,
-          "hit": [{ "x": 6, "y": 0, "w": 84, "h": 105 }],
-          "hurt": [{ "x": -18, "y": 0, "w": 36, "h": 114 }]
+          "hit": [{ "x": 4, "y": 0, "w": 56, "h": 70 }],
+          "hurt": [{ "x": -12, "y": 0, "w": 24, "h": 76 }]
         },
         { "duration": 30 }
       ]
@@ -439,18 +437,18 @@
     "panfleto": {
       "display_name": "Panfleto",
       "debug_color": "#f2e6b4",
-      "speed": 3.3,
+      "speed": 2.2,
       "lifetime": 200,
-      "offset_x": 33,
-      "offset_y": 54,
-      "box": { "x": -12, "y": -9, "w": 24, "h": 18 },
+      "offset_x": 22,
+      "offset_y": 36,
+      "box": { "x": -8, "y": -6, "w": 16, "h": 12 },
       "height": "mid",
       "damage": 40,
       "hitstun": 26,
       "blockstun": 14,
       "hitstop": 6,
-      "pushback_hit": 2.7,
-      "pushback_block": 2.1,
+      "pushback_hit": 1.8,
+      "pushback_block": 1.4,
       "meter_hit": 55,
       "meter_block": 22
     }
