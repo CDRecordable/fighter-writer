@@ -21,6 +21,11 @@ class Layer:
 	var x: int = 0  ## px, desplazamiento horizontal en el mundo
 	var y: int = 0  ## px sobre el suelo donde se apoya el BORDE INFERIOR
 	var repeat_x: bool = false
+	## Tinte multiplicativo. Es la herramienta para meter arte de terceros sin
+	## editar el PNG: baja el contraste de una capa que canta o la mete en la
+	## paleta del escenario. En un juego de lucha el fondo NUNCA debe competir
+	## con los luchadores por la atención.
+	var tint: Color = Color.WHITE
 	## Tiras horizontales de fotogramas para las cosas que se mueven al fondo
 	## (las gaviotas del galeón, PLAN.md §5). 1 = imagen quieta.
 	var frames: int = 1
@@ -84,6 +89,7 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 		layer.x = int(entry.get("x", 0))
 		layer.y = int(entry.get("y", 0))
 		layer.repeat_x = bool(entry.get("repeat_x", false))
+		layer.tint = Color(String(entry.get("tint", "#ffffff")))
 		layer.frames = maxi(1, int(entry.get("frames", 1)))
 		layer.hold = maxi(1, int(entry.get("hold", 8)))
 		var image_path := "%s/%s/%s" % [ROOT, stage_id, String(entry.get("image", ""))]

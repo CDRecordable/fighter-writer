@@ -27,12 +27,15 @@
       "hold": 14
     },
     {
-      "image": "capas/mar_cerca.png",
+      "_nota": "Mar cercano: tira CC0 de POKOMOKO (ver 'credits'). Es un tile de agua de 64x64 en 4 fotogramas; aquí se usa como banda de superficie vista desde la cubierta.",
+      "image": "capas/mar_cc0.png",
       "parallax": 0.55,
-      "y": 52,
+      "y": 46,
       "repeat_x": true,
       "frames": 4,
-      "hold": 9
+      "hold": 10,
+      "_nota_tinte": "El tile original es mucho más contrastado que el resto del escenario y se comía la atención. El tinte lo oscurece y lo mete en la paleta sin tocar el PNG, que además así sigue siendo el archivo original tal cual lo publicó su autor.",
+      "tint": "#7c93b4"
     },
     {
       "image": "capas/gaviotas.png",
@@ -66,5 +69,13 @@
 
   "_comentario_creditos": "Aquí van los créditos del arte de terceros. Van EN LOS DATOS y no en la cabeza de nadie porque con licencias CC-BY la atribución es una obligación legal. tools/generar_creditos.gd los vuelca a CREDITOS.md.",
 
-  "credits": []
+  "credits": [
+    {
+      "obra": "Animated Ocean Water Tile",
+      "autor": "POKOMOKO",
+      "licencia": "CC0 1.0 (dominio público)",
+      "url": "https://opengameart.org/content/animated-ocean-water-tile",
+      "cambios": "ninguno; se usa la tira tal cual como capa de mar cercano"
+    }
+  ]
 }

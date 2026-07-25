@@ -1,0 +1,20 @@
+{
+  "_comentario": "Efectos visuales compartidos por todos los personajes y escenarios. Van aquí y no dentro de un personaje porque una chispa de impacto es del juego, no de quien pega.",
+
+  "_comentario_creditos": "El array 'credits' lo recoge tools/generar_creditos.gd, igual que en escenarios y personajes. Aquí SÍ hay arte de terceros, así que aunque la licencia sea CC0 y no obligue a atribuir, se deja constancia: cuando dentro de un año nadie se acuerde de dónde salió un PNG, esto es lo que evita tener que borrarlo por si acaso.",
+
+  "sparks": [
+    { "image": "spark_strip9.png", "frames": 9, "fps": 42 },
+    { "image": "spark2_strip9.png", "frames": 9, "fps": 42 }
+  ],
+
+  "credits": [
+    {
+      "obra": "Spark effect",
+      "autor": "kurohina",
+      "licencia": "CC0 1.0 (dominio público)",
+      "url": "https://opengameart.org/content/spark-effect",
+      "cambios": "ninguno; se usan las tiras tal cual"
+    }
+  ]
+}

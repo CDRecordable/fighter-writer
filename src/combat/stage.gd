@@ -61,7 +61,8 @@ func _draw_layer(layer: StageData.Layer) -> void:
 		draw_texture_rect_region(
 			layer.texture,
 			Rect2(float(layer.x) + scroll, top, float(width), float(height)),
-			source
+			source,
+			layer.tint
 		)
 		return
 
@@ -75,7 +76,8 @@ func _draw_layer(layer: StageData.Layer) -> void:
 		draw_texture_rect_region(
 			layer.texture,
 			Rect2(x + scroll + float(layer.x), top, float(width), float(height)),
-			source
+			source,
+			layer.tint
 		)
 		x += float(width)
 

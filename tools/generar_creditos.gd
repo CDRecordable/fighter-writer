@@ -16,7 +16,8 @@ extends SceneTree
 ##   { "obra": "...", "autor": "...", "licencia": "CC-BY 4.0",
 ##     "url": "https://...", "cambios": "recortado y repaleteado" }
 
-const CARPETAS := ["res://stages", "res://characters"]
+const CARPETAS := ["res://stages", "res://characters", "res://assets"]
+const ARCHIVOS := ["stage.json", "fighter.json", "vfx.json"]
 const SALIDA := "res://CREDITOS.md"
 
 var _finished := false
@@ -53,7 +54,7 @@ func _recoger(raiz: String, entradas: Array[Dictionary], sin_creditos: Array[Str
 	if dir == null:
 		return
 	for nombre in dir.get_directories():
-		for archivo in ["stage.json", "fighter.json"]:
+		for archivo in ARCHIVOS:
 			var ruta := "%s/%s/%s" % [raiz, nombre, archivo]
 			if not FileAccess.file_exists(ruta):
 				continue

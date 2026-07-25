@@ -153,6 +153,9 @@ Cada capa declara su profundidad:
   queda pegada a la cámara, o sea infinitamente lejos.
 - `y`: a cuántos píxeles del suelo se apoya el **borde inferior** de la imagen.
 - `repeat_x`: se teje en horizontal para cubrir el desplazamiento.
+- `tint`: tinte multiplicativo. Es la herramienta para meter arte de terceros sin
+  editar el PNG — baja el contraste de una capa que canta o la mete en la paleta
+  del escenario. **El fondo nunca debe competir con los luchadores.**
 - `frames` / `hold`: parte la imagen en una tira de fotogramas y los pasa cada
   `hold` ticks. Es lo que anima las gaviotas o el móvil del barril.
 
