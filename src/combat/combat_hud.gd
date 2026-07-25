@@ -36,7 +36,40 @@ func _draw() -> void:
 	_draw_clock(width)
 	_draw_rounds(width)
 	_draw_banner(width)
+	if arena.training.enabled:
+		_draw_training()
 	_draw_help(width)
+
+
+## Panel de entrenamiento. Números, no adornos: es la herramienta con la que se
+## decide si un golpe es seguro y si un combo enlaza de verdad.
+func _draw_training() -> void:
+	var training: Training = arena.training
+	var lineas := [
+		["Distancia", "%d px" % training.distance_px(arena.fighters)],
+		["Combo", training.combo_line()],
+		["Ventaja", training.advantage_line()],
+		["Último golpe", "%s  %s" % [training.last_move_name, training.last_move_timing]],
+		["Muñeco (F2)", String(arena.dummy_mode_label)],
+	]
+	var y := 44.0
+	var ancho := 208.0
+	draw_rect(Rect2(MARGIN, y - 9.0, ancho, float(lineas.size()) * 10.0 + 12.0), Color(0, 0, 0, 0.55))
+	draw_string(
+		_font, Vector2(MARGIN + 4.0, y), "ENTRENAMIENTO (F4)",
+		HORIZONTAL_ALIGNMENT_LEFT, ancho, 7, Color(0.95, 0.83, 0.25)
+	)
+	y += 11.0
+	for entrada: Array in lineas:
+		draw_string(
+			_font, Vector2(MARGIN + 4.0, y), String(entrada[0]),
+			HORIZONTAL_ALIGNMENT_LEFT, 60.0, 7, Color(0.62, 0.60, 0.68)
+		)
+		draw_string(
+			_font, Vector2(MARGIN + 62.0, y), String(entrada[1]),
+			HORIZONTAL_ALIGNMENT_LEFT, ancho - 66.0, 7, Color(0.94, 0.93, 0.90)
+		)
+		y += 10.0
 
 
 func _draw_fighter_panel(fighter: Fighter, x: float, mirrored: bool) -> void:
@@ -118,7 +151,7 @@ func _draw_help(width: float) -> void:
 	var lines := [
 		"J1: WASD · J K puños · N M patadas · L especial (modo accesible)",
 		"236+P Danza Bruta · 236+K Lectura Fácil · 214+P Asamblea · 236236+P súper · →+HP agarre",
-		"F1 cajas · F2 muñeco: %s · F3 accesible: %s · F5 reiniciar" % [
+		"F1 cajas · F2 muñeco: %s · F3 accesible: %s · F4 entrenamiento · F5 combate · F6 reinicio" % [
 			String(arena.dummy_mode_label), accessible,
 		],
 	]

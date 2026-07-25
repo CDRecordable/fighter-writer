@@ -53,6 +53,14 @@ var priority: int = 0
 ## dibuja como el rectángulo del prototipo gris y el movimiento funciona igual.
 var anim: AnimationData = null
 
+## Reparto clásico en ticks: cuánto tarda en salir, cuánto pega y cuánto tarda
+## en recuperarse. Se calcula de la propia línea de cajas, no se escribe a mano,
+## así que no puede quedar desfasado al tocar los frames. Es lo que enseña el
+## modo entrenamiento y lo que se lee para saber si un golpe es seguro.
+var startup: int = 0
+var active: int = 0
+var recovery: int = 0
+
 
 static func from_dict(id_in: StringName, d: Dictionary) -> MoveData:
 	var move := MoveData.new()
@@ -84,6 +92,7 @@ static func from_dict(id_in: StringName, d: Dictionary) -> MoveData:
 		move.counter_move = StringName(String(counter.get("move", "")))
 
 	move.priority = move._compute_priority()
+	move._compute_timing()
 
 	var raw_anim: Variant = d.get("anim", null)
 	if raw_anim is Dictionary:
@@ -122,6 +131,26 @@ func _compute_priority() -> int:
 	if motion.begins_with("charge"):
 		return 400
 	return 100 + motion.length() * 10
+
+
+func _compute_timing() -> void:
+	var primero := -1
+	var ultimo := -1
+	for i in timeline.size():
+		if timeline[i].has_hitbox():
+			if primero < 0:
+				primero = i
+			ultimo = i
+	if primero < 0:
+		# Un movimiento sin hitbox (la Asamblea, Lectura Fácil) no tiene
+		# "activo": todo lo que dura es puesta en escena y recuperación.
+		startup = timeline.size()
+		active = 0
+		recovery = 0
+		return
+	startup = primero
+	active = ultimo - primero + 1
+	recovery = timeline.size() - ultimo - 1
 
 
 ## ¿Se invoca con un comando (dirección + botón) en vez de con postura + botón?

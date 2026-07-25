@@ -509,6 +509,13 @@ func is_attacking() -> bool:
 	return state == State.ATTACK and current_move != null
 
 
+## ¿Puede el jugador hacer algo YA? Es la definición sobre la que se calcula la
+## ventaja de frames, así que tiene que ser exactamente "está libre en el
+## suelo": ni congelado por hitstop, ni saltando, ni recuperándose.
+func is_actionable() -> bool:
+	return hitstop <= 0 and (state in NEUTRAL_GROUND)
+
+
 func active_hitboxes() -> Array[BoxData]:
 	if not is_attacking():
 		return _empty_boxes

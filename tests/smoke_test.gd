@@ -67,6 +67,10 @@ func _run_all() -> void:
 	_test_super_cuesta_tinta()
 	_test_agarre()
 
+	_test_ventaja_de_frames()
+	_test_contador_de_combo()
+	_test_reinicio_instantaneo()
+
 	print("")
 	if failures.is_empty():
 		print("OK — todas las pruebas pasan")
@@ -186,6 +190,67 @@ func _test_rondas_y_ko() -> void:
 
 	_check("dejar a cero la vida acaba la ronda", arena.round_state == CombatArena.RoundState.KO)
 	_check("la ronda se le apunta al ganador", arena.rounds_won[0] == 1)
+	arena.free()
+
+
+# --- Modo entrenamiento ------------------------------------------------------
+
+func _test_ventaja_de_frames() -> void:
+	# No se comprueba un número exacto —cambiaría con cada retoque de balance—
+	# sino la regla que tiene que cumplirse siempre: un golpe rápido deja mejor
+	# situación que uno lento. Si esto se invierte, el balance está roto.
+	var jab: Variant = _medir_ventaja(FighterInput.BTN_LP)
+	var patada: Variant = _medir_ventaja(FighterInput.BTN_HK)
+	_check("se puede medir la ventaja de un jab bloqueado (%s)" % str(jab), jab != null)
+	_check("se puede medir la ventaja de una patada bloqueada (%s)" % str(patada), patada != null)
+	if jab != null and patada != null:
+		_check("el golpe rápido deja mejor situación que el lento (%d vs %d)" % [jab, patada],
+			int(jab) > int(patada))
+
+
+func _medir_ventaja(button: int) -> Variant:
+	var arena := _make_arena()
+	_separate(arena, 12.0)
+	(arena.fighters[1].agent as Scripted).hold(-arena.fighters[1].facing)
+	(arena.fighters[0].agent as Scripted).press(button)
+	var resultado: Variant = null
+	for i in 120:
+		arena.tick()
+		for fighter: Fighter in arena.fighters:
+			(fighter.agent as Scripted).consume_edge()
+		if arena.training.advantage_valid:
+			resultado = arena.training.advantage
+			break
+	arena.free()
+	return resultado
+
+
+func _test_contador_de_combo() -> void:
+	var arena := _make_arena()
+	var attacker: Fighter = arena.fighters[0]
+
+	_input_motion(arena, attacker, [ABAJO, ABAJO_ADELANTE, ADELANTE])
+	(attacker.agent as Scripted).press(FighterInput.BTN_LP)
+	_run(arena, 60)
+
+	_check("el contador cuenta los tres golpes de la Danza Bruta (contó %d)"
+		% maxi(arena.training.combo_hits, arena.training.last_combo_hits),
+		maxi(arena.training.combo_hits, arena.training.last_combo_hits) == 3)
+	arena.free()
+
+
+func _test_reinicio_instantaneo() -> void:
+	var arena := _make_arena()
+	var defender: Fighter = arena.fighters[1]
+	(arena.fighters[0].agent as Scripted).press(FighterInput.BTN_HP)
+	_run(arena, 20)
+	_check("el golpe de prueba ha hecho daño", defender.health < defender.stats.max_health)
+
+	arena.reset_instantaneo()
+	_check("el reinicio instantáneo devuelve la vida",
+		defender.health == defender.stats.max_health)
+	_check("y deja el combate listo, sin cuenta atrás",
+		arena.round_state == CombatArena.RoundState.FIGHTING)
 	arena.free()
 
 

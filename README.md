@@ -29,9 +29,40 @@ agachado; los golpes de salto, de pie. Los agarres no se bloquean.
 Con mando: cruceta o stick izquierdo, `X`/`Y` puños y `A`/`B` patadas. El mando 0
 es el jugador 1 y el mando 1 el jugador 2.
 
-**Teclas de desarrollo:** `F1` muestra las cajas (hurtbox azul, hitbox roja,
-pushbox verde), `F2` cambia el modo del muñeco de pruebas (Quieto → Bloquea →
-Agresiva), `F3` enciende el modo accesible, `F5` reinicia el combate.
+**Teclas de desarrollo:** `F1` cajas (hurtbox azul, hitbox roja, pushbox verde),
+`F2` modo del muñeco, `F3` modo accesible, `F4` panel de entrenamiento,
+`F5` combate desde cero, `F6` reinicio instantáneo.
+
+## Modo entrenamiento (`F4`)
+
+Un golpe que deja +4 o -2 no se ve, se mide. El panel enseña:
+
+- **Distancia** entre los luchadores, en píxeles.
+- **Combo**: cuántos golpes, cuánto daño y si es **REAL** — o sea, si el rival
+  no tuvo ni un frame para reaccionar entre golpe y golpe. Si tuvo alguno, el
+  combo no enlaza: es que el rival aceptó los golpes.
+- **Ventaja** en frames tras el último intercambio. Positiva = te toca a ti
+  antes que al rival.
+- **Último golpe** con su reparto `startup / activo / recuperación`.
+
+Modos del muñeco (`F2`): Quieto → Bloquea → **Bloquea tras el primero** →
+Agresiva. El tercero es el que hace falta para probar combos: encaja el primer
+golpe y bloquea el resto. Si la segunda parte entra igual, enlaza de verdad.
+
+`F6` reinicia posiciones y vida sin cuenta atrás. Es la tecla que más se usa
+entrenando.
+
+### Informe de frames
+
+Para no tener que medir a mano golpe por golpe:
+
+```bash
+godot --headless --path . --script res://tools/informe_frames.gd
+```
+
+Ejecuta cada golpe contra el muñeco, mide la ventaja real que deja y aplica la
+regla clásica —**X enlaza con Y si la ventaja al golpear de X es mayor o igual
+que el startup de Y**— para listar qué combos permiten los números actuales.
 
 ## Movimientos de Cristina Morales
 

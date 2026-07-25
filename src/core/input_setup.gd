@@ -66,6 +66,10 @@ func _enter_tree() -> void:
 	_add_key(&"dev_toggle_dummy", KEY_F2)
 	_ensure_action(&"dev_toggle_accessible")
 	_add_key(&"dev_toggle_accessible", KEY_F3)
+	_ensure_action(&"dev_toggle_training")
+	_add_key(&"dev_toggle_training", KEY_F4)
+	_ensure_action(&"dev_quick_reset")
+	_add_key(&"dev_quick_reset", KEY_F6)
 
 
 func _ensure_action(action: StringName) -> void:

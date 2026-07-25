@@ -194,7 +194,29 @@ sitio desde donde se disparan. La fuerza del efecto sale del `hitstop` del golpe
 que ya es la medida de "peso" del combate: así el efecto y la sensación no se
 pueden desincronizar al tocar el balance.
 
-## 11. Los créditos viven en los datos
+## 11. El modo entrenamiento solo mira
+
+`src/combat/training.gd` observa el combate y no lo toca: si la clase
+desapareciera, el juego se comportaría exactamente igual. Misma frontera que los
+efectos (§10), y por el mismo motivo.
+
+Mide dos cosas que no se pueden juzgar a ojo y de las que depende el hito de la
+Fase 1:
+
+- **Ventaja de frames.** Se calcula esperando a que los DOS luchadores estén
+  libres y restando. Hasta que los dos lo están no hay número que dar, y por eso
+  el panel dice "midiendo…" en vez de enseñar un valor a medias.
+- **Si un combo es real.** Un combo es real cuando el rival no tuvo ni un frame
+  para actuar entre golpe y golpe. Si tuvo alguno, no es que no pudiera
+  escapar: es que aceptó los golpes. Esa distinción es la diferencia entre un
+  combo y una ilusión, y es exactamente lo que el plan pide comprobar.
+
+El reparto `startup / activo / recuperación` de cada movimiento **se calcula de
+la propia línea de cajas**, no se escribe a mano en el JSON. Así no puede quedar
+desfasado al retocar los frames — que es como se acaba con una tabla de frame
+data que miente.
+
+## 12. Los créditos viven en los datos
 
 Cada escenario y cada personaje lleva su array `credits` en su propio JSON, y
 `tools/generar_creditos.gd` los junta en `CREDITOS.md`.
@@ -205,13 +227,13 @@ publicar incumpliéndola sin enterarse. La herramienta además **avisa de los
 archivos que no declaran créditos**, así que un asset de fuera no puede colarse
 en silencio.
 
-## 12. Resolución y render
+## 13. Resolución y render
 
 480×270 interno con escalado entero (PLAN.md §7) y filtro *nearest*. Las
 posiciones se redondean al píxel al dibujar (`FP.floor_px`): sin eso el pixel art
 vibra al moverse, que es el defecto más típico de un 2D mal configurado.
 
-## 13. Lo que es deliberadamente provisional
+## 14. Lo que es deliberadamente provisional
 
 Esto se tira sin pena cuando llegue su fase:
 
@@ -225,16 +247,23 @@ Esto se tira sin pena cuando llegue su fase:
 - La correspondencia dirección→especial del modo accesible, que hay que decidir
   probándola con gente que no juega a juegos de lucha.
 
-## 14. Lo que falta para cerrar la Fase 1
+## 15. Lo que falta para cerrar la Fase 1
 
-La lista de sistemas del plan está completa. Lo que queda es criterio, no código:
+La lista de sistemas del plan está completa, y los **combos por enlace natural
+ya están comprobados**: `tools/informe_frames.gd` encuentra tres (jab → jab,
+jab → puntera, jab → jab agachado), que es lo que pedía el plan.
 
-- **Jugarlo.** El hito de la fase es *"dos rectángulos se pegan y ES DIVERTIDO"*.
-  Nadie puede firmar eso desde un test.
-- Comprobar que los frame data permiten 2-3 **combos por enlace natural**, como
-  pide el plan. Hoy los números son de primera pasada y nadie ha verificado que
-  ningún golpe enlace de verdad.
-- Afinar el balance con el modo cajas (`F1`) puesto.
+Queda una sola cosa, y no es código: **jugarlo**. El hito de la fase es *"dos
+rectángulos se pegan y ES DIVERTIDO"*, y eso nadie lo puede firmar desde un
+test. Ahora al menos se juega con datos delante (`F4`) en vez de a ciegas.
+
+Dos cosas que el informe deja a la vista y que habrá que decidir jugando:
+
+- **Los golpes fuertes dejan en desventaja incluso cuando aciertan** (Directo
+  -1, Patada alta -4). Es raro: normalmente un fuerte que conecta te deja mandar.
+  Tal como está, no compensa usarlos salvo para rematar.
+- **Todos los enlaces salen del jab.** Funciona, pero un personaje cuyo único
+  arranque de combo es un botón se queda corto de variedad.
 
 Cosas que el plan deja para más adelante y que este código ya soporta sin tocar
 motor: más especiales por personaje, proyectiles nuevos, cargas (implementadas y

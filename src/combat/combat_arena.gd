@@ -54,6 +54,8 @@ var rounds_won := [0, 0]
 var clock_ticks: int = ROUND_SECONDS * TICKS_PER_SECOND
 var show_boxes: bool = false
 var accessible_mode: bool = false
+## Solo observa y mide; si desapareciera, el combate se comportaría igual.
+var training := Training.new()
 var banner: String = ""
 var dummy_mode_label: String = "Agresiva"
 
@@ -208,6 +210,7 @@ func _tick_fight() -> void:
 	_resolve_hits()
 	_spawn_requested_projectiles()
 	_tick_projectiles()
+	training.tick(fighters)
 
 	if _any_in_hitstop():
 		return  # El reloj también se congela con el golpe.
@@ -357,7 +360,9 @@ func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData, contact: V
 		effects.block(contact, attacker.facing)
 		return
 
-	_spawn_impact(contact, attacker.facing, move, result == Fighter.HitResult.BLOCKED)
+	var blocked := result == Fighter.HitResult.BLOCKED
+	_spawn_impact(contact, attacker.facing, move, blocked)
+	training.on_hit(attacker, defender, move, blocked)
 
 	attacker.hitstop = move.hitstop
 	defender.hitstop = move.hitstop
@@ -437,8 +442,9 @@ func _check_projectile_hit(projectile: Projectile) -> void:
 			if result == Fighter.HitResult.COUNTERED:
 				effects.block(contact, projectile.facing)
 				return
-			_spawn_impact(contact, projectile.facing, projectile.data,
-				result == Fighter.HitResult.BLOCKED)
+			var blocked := result == Fighter.HitResult.BLOCKED
+			_spawn_impact(contact, projectile.facing, projectile.data, blocked)
+			training.on_hit(projectile.shooter, defender, projectile.data, blocked)
 			defender.hitstop = projectile.data.hitstop
 			_award_meter(projectile.shooter, projectile.data, result == Fighter.HitResult.BLOCKED)
 			return
@@ -500,6 +506,25 @@ func _handle_dev_keys() -> void:
 		_start_round(1)
 	if Input.is_action_just_pressed(&"dev_toggle_dummy") and dummy != null:
 		dummy_mode_label = dummy.cycle_mode()
+	if Input.is_action_just_pressed(&"dev_toggle_training"):
+		training.enabled = not training.enabled
+	if Input.is_action_just_pressed(&"dev_quick_reset"):
+		reset_instantaneo()
+
+
+## Vuelve a la posición de salida sin cuenta atrás ni cambio de ronda. Es la
+## tecla que más se usa entrenando: probar un combo, fallar, y volver a estar
+## listo antes de que se te olvide qué querías probar.
+func reset_instantaneo() -> void:
+	var start := FP.from_px(START_DISTANCE)
+	_clear_projectiles()
+	effects.clear()
+	shake_power = 0.0
+	training.reset()
+	fighters[0].reset_for_round(-start, 1)
+	fighters[1].reset_for_round(start, -1)
+	banner = ""
+	_set_round_state(RoundState.FIGHTING)
 
 
 func clock_seconds() -> int:

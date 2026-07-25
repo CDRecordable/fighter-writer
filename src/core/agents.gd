@@ -63,7 +63,11 @@ class Human extends Agent:
 ## La "IA tonta" que pide la Fase 1: sirve para probar el combate en solitario,
 ## no para ser un rival. La de verdad, por niveles, llega en la Fase 3.
 class Dummy extends Agent:
-	enum Mode { QUIETO, BLOQUEA, AGRESIVA }
+	## BLOQUEA_TRAS_EL_PRIMERO es el modo que de verdad hace falta para probar
+	## combos: encaja el primer golpe y bloquea todo lo demás. Si la segunda
+	## parte del combo entra igual, es que enlaza de verdad; si la bloquea, es
+	## que solo funcionaba porque el rival no reaccionaba.
+	enum Mode { QUIETO, BLOQUEA, BLOQUEA_TRAS_EL_PRIMERO, AGRESIVA }
 
 	const BUTTONS := [
 		FighterInput.BTN_LP, FighterInput.BTN_HP,
@@ -94,6 +98,9 @@ class Dummy extends Agent:
 			Mode.BLOQUEA:
 				# Alejarse del rival = bloquear (bloqueo por dirección, como SF2).
 				_snapshot.dir_x = -fighter.facing
+			Mode.BLOQUEA_TRAS_EL_PRIMERO:
+				if fighter.health < fighter.stats.max_health:
+					_snapshot.dir_x = -fighter.facing
 			Mode.AGRESIVA:
 				_poll_aggressive(fighter)
 		return _snapshot
