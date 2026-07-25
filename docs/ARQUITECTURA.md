@@ -168,13 +168,27 @@ que el rectángulo gris para juzgar si un golpe es justo.
 De paso le da al artista la referencia exacta de la silueta que tiene que cubrir
 cada celda.
 
-### Aviso de escala pendiente de decidir
+### La escala del personaje: 114 px de hurtbox
 
-El plan (§7) pide personajes de **120-128 px de alto**. Las cajas actuales de
-Cristina miden **76 px**. La celda ya es de 128, así que el arte definitivo cabe,
-pero si se sube el personaje a la altura del plan hay que reescalar cajas,
-velocidades, salto y alcances — o sea, rehacer el balance. **Conviene decidirlo
-antes de que el artista dibuje nada.**
+El plan (§7) pide personajes de **120-128 px de alto**. El primer prototipo se
+hizo a 76 px, que dejaba a Cristina ocupando un 28 % de la pantalla cuando SF2
+pone a los suyos en un 45 %. Se ha reescalado **todo ×1,5**: cajas, velocidades,
+gravedad, empujes, alcances y las medidas del escenario. La hurtbox de pie mide
+ahora 114 px, que con pelo y holgura da el sprite de 120-128 px del plan.
+
+Dos cosas que conviene entender de este cambio:
+
+- **La geometría del combate no cambia.** Al escalar posiciones y velocidades por
+  el mismo factor, el salto sigue durando 37 ticks y los alcances relativos son
+  los mismos. Lo comprueba la prueba del salto, que ahora exige 85-125 px de
+  altura: si alguien reescala las cajas y se olvida de la gravedad, salta.
+- **Lo que sí cambia es el espacio.** La pantalla sigue midiendo 480 px, así que
+  ahora caben 13 anchos de cuerpo en vez de 20. Hay menos sitio para huir y las
+  distancias se cierran antes. Eso no es un efecto secundario: es exactamente lo
+  que busca el plan al pedir personajes grandes.
+
+Si se vuelve a tocar la escala hay que tocarlo todo a la vez, o el balance se
+rompe en silencio. Está avisado en el propio `fighter.json`.
 
 ## 10. Resolución y render
 

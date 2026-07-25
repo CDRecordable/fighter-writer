@@ -13,11 +13,17 @@ const TICKS_PER_SECOND := 60
 const ROUND_SECONDS := 99
 const ROUNDS_TO_WIN := 2
 
-const STAGE_HALF_WIDTH := 360  ## px a cada lado del centro
+## Medidas del escenario. Escalaron con el personaje (×1,5) menos
+## VIEW_HALF_WIDTH, que es la pantalla y no se mueve: por eso ahora el
+## luchador ocupa más sitio y hay menos espacio para huir, que es justo lo que
+## busca el plan al pedir personajes grandes (PLAN.md §7).
+const STAGE_HALF_WIDTH := 540  ## px a cada lado del centro
 const VIEW_HALF_WIDTH := 240   ## mitad de la resolución interna (480)
-const WALL_MARGIN := 18        ## px que el cuerpo no puede pasar del borde
-const START_DISTANCE := 62     ## px de separación inicial entre luchadores
-const FLOOR_SCREEN_Y := 96     ## altura del suelo respecto al centro de cámara
+const WALL_MARGIN := 27        ## px que el cuerpo no puede pasar del borde
+const START_DISTANCE := 93     ## px de separación inicial entre luchadores
+## Con 114 px de alto y 103 de salto, el suelo tiene que bajar o la cabeza se
+## sale de la pantalla en el punto más alto.
+const FLOOR_SCREEN_Y := 108    ## altura del suelo respecto al centro de cámara
 
 const INTRO_TICKS := 96
 const KO_TICKS := 150
