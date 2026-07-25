@@ -62,6 +62,8 @@ jugona antes de cerrarla.
 - **Proyectiles** con las mismas reglas de impacto que un puñetazo.
 - **Capa de sprites** en datos, con vuelta automática al rectángulo si falta el
   arte, y un generador de hoja provisional derivada de las propias cajas.
+- **Escenarios en datos** con capas de parallax y elementos animados.
+- **Chispas, polvo y sacudida de cámara**, dibujados a mano sin imágenes.
 - Pushboxes, límites de escenario, cámara que sigue a los dos.
 - Rondas al mejor de 3, reloj de 99 s, K.O. y victoria por tiempo.
 - IA de pruebas determinista (la IA de verdad es de la Fase 3).
@@ -129,6 +131,60 @@ un barrido la pierna donde está el barrido. Sirve para dos cosas: probar la
 tubería de arte con algo que no miente sobre lo que hace el motor, y darle al
 artista la referencia exacta de qué silueta tiene que cubrir cada celda para que
 el golpe sea legible. Cuando entregue su PNG, se sustituye el archivo.
+
+## Escenarios
+
+Un escenario es una carpeta en `stages/`, igual que un personaje:
+
+```
+stages/galeon/
+  stage.json    capas, parallax, ancho, altura del suelo y créditos
+  capas/        las imágenes
+```
+
+Cada capa declara su profundidad:
+
+```json
+{ "image": "capas/mar_cerca.png", "parallax": 0.55, "y": 52,
+  "repeat_x": true, "frames": 4, "hold": 9 }
+```
+
+- `parallax`: **1.0** va clavada al mundo (se mueve como el suelo), **0.0** se
+  queda pegada a la cámara, o sea infinitamente lejos.
+- `y`: a cuántos píxeles del suelo se apoya el **borde inferior** de la imagen.
+- `repeat_x`: se teje en horizontal para cubrir el desplazamiento.
+- `frames` / `hold`: parte la imagen en una tira de fotogramas y los pasa cada
+  `hold` ticks. Es lo que anima las gaviotas o el móvil del barril.
+
+El escenario también manda su **ancho** y la **altura del suelo**, así que un
+escenario estrecho y agobiante o uno largo son cosa de datos.
+
+Las capas de ahora están generadas, no dibujadas:
+
+```bash
+godot --headless --path . --script res://tools/generar_escenario.gd
+```
+
+### Créditos del arte de terceros
+
+Si se usa arte con licencia **CC-BY**, atribuir es una condición de la licencia,
+no una cortesía. Por eso los créditos van dentro del `stage.json` (o el
+`fighter.json`) que los genera, y no en un documento que alguien recuerda
+actualizar:
+
+```json
+"credits": [
+  { "obra": "...", "autor": "...", "licencia": "CC-BY 4.0",
+    "url": "https://...", "cambios": "recortado y repaleteado" }
+]
+```
+
+```bash
+godot --headless --path . --script res://tools/generar_creditos.gd
+```
+
+Escribe [CREDITOS.md](CREDITOS.md) y **avisa de los archivos que no declaran
+créditos**, para que un asset no se cuele sin atribución.
 
 ## Pruebas
 

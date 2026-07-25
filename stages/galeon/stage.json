@@ -1,0 +1,70 @@
+{
+  "_comentario": "Cubierta de galeón — el escenario de Pérez-Reverte (PLAN.md §5): mar embravecido, gaviotas, y un móvil que vibra sin parar sobre un barril. Las capas de ahora están GENERADAS (tools/generar_escenario.gd), no dibujadas: sirven para probar el parallax y para que el artista sepa qué tamaño tiene cada franja.",
+
+  "_comentario_capas": "parallax 1.0 = la capa va clavada al mundo y se mueve como el suelo. 0.0 = se queda pegada a la cámara, o sea infinitamente lejos. 'y' es a cuántos píxeles del suelo se apoya el BORDE INFERIOR de la imagen. 'frames' parte la imagen en una tira horizontal de fotogramas.",
+
+  "id": "galeon",
+  "display_name": "Cubierta del galeón",
+  "owner": "arturo_perez_reverte",
+  "half_width": 360,
+  "floor_screen_y": 96,
+  "sky_color": "#16233c",
+
+  "layers": [
+    {
+      "_nota": "Las alturas están calculadas para que se vea el mar POR ENCIMA de la regala de la cubierta, que llega a 60 px del suelo. Si se cambia el alto de cubierta.png hay que recolocar el mar o desaparece detrás.",
+      "image": "capas/cielo.png",
+      "parallax": 0.08,
+      "y": 100,
+      "repeat_x": true
+    },
+    {
+      "image": "capas/mar_lejos.png",
+      "parallax": 0.3,
+      "y": 80,
+      "repeat_x": true,
+      "frames": 4,
+      "hold": 14
+    },
+    {
+      "image": "capas/mar_cerca.png",
+      "parallax": 0.55,
+      "y": 52,
+      "repeat_x": true,
+      "frames": 4,
+      "hold": 9
+    },
+    {
+      "image": "capas/gaviotas.png",
+      "parallax": 0.35,
+      "x": -60,
+      "y": 118,
+      "frames": 4,
+      "hold": 10
+    },
+    {
+      "image": "capas/mastil.png",
+      "parallax": 0.85,
+      "x": -120,
+      "y": 0
+    },
+    {
+      "image": "capas/cubierta.png",
+      "parallax": 1.0,
+      "y": -30,
+      "repeat_x": true
+    },
+    {
+      "image": "capas/barril.png",
+      "parallax": 1.0,
+      "x": 150,
+      "y": 0,
+      "frames": 2,
+      "hold": 4
+    }
+  ],
+
+  "_comentario_creditos": "Aquí van los créditos del arte de terceros. Van EN LOS DATOS y no en la cabeza de nadie porque con licencias CC-BY la atribución es una obligación legal. tools/generar_creditos.gd los vuelca a CREDITOS.md.",
+
+  "credits": []
+}

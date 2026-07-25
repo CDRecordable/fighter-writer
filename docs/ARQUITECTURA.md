@@ -176,13 +176,42 @@ pero si se sube el personaje a la altura del plan hay que reescalar cajas,
 velocidades, salto y alcances — o sea, rehacer el balance. **Conviene decidirlo
 antes de que el artista dibuje nada.**
 
-## 10. Resolución y render
+## 10. Los efectos no tocan la simulación
+
+`src/combat/effects.gd` (chispas, polvo) y la sacudida de cámara viven **fuera**
+del punto fijo: usan floats, se mueven con el reloj de render y no escriben ni
+una posición, ni un daño, ni un frame del combate. La sacudida desplaza la
+cámara, nunca a los luchadores.
+
+Es una frontera que hay que defender. En cuanto un efecto empieza a influir en el
+combate —un empujón, un frame de más— deja de ser un efecto: se va a `fighter.gd`
+con enteros, o se lleva por delante el determinismo del que depende todo lo
+demás (§1).
+
+Se dibujan con formas, no con imágenes. Así no dependen de ningún asset ni de la
+licencia de nadie, y el artista puede sustituirlos en la Fase 4 sin tocar el
+sitio desde donde se disparan. La fuerza del efecto sale del `hitstop` del golpe,
+que ya es la medida de "peso" del combate: así el efecto y la sensación no se
+pueden desincronizar al tocar el balance.
+
+## 11. Los créditos viven en los datos
+
+Cada escenario y cada personaje lleva su array `credits` en su propio JSON, y
+`tools/generar_creditos.gd` los junta en `CREDITOS.md`.
+
+No es burocracia. Con arte CC-BY la atribución es una **condición de la
+licencia**, y una lista que alguien mantiene a mano es la forma más fácil de
+publicar incumpliéndola sin enterarse. La herramienta además **avisa de los
+archivos que no declaran créditos**, así que un asset de fuera no puede colarse
+en silencio.
+
+## 12. Resolución y render
 
 480×270 interno con escalado entero (PLAN.md §7) y filtro *nearest*. Las
 posiciones se redondean al píxel al dibujar (`FP.floor_px`): sin eso el pixel art
 vibra al moverse, que es el defecto más típico de un 2D mal configurado.
 
-## 11. Lo que es deliberadamente provisional
+## 13. Lo que es deliberadamente provisional
 
 Esto se tira sin pena cuando llegue su fase:
 
@@ -196,7 +225,7 @@ Esto se tira sin pena cuando llegue su fase:
 - La correspondencia dirección→especial del modo accesible, que hay que decidir
   probándola con gente que no juega a juegos de lucha.
 
-## 12. Lo que falta para cerrar la Fase 1
+## 14. Lo que falta para cerrar la Fase 1
 
 La lista de sistemas del plan está completa. Lo que queda es criterio, no código:
 

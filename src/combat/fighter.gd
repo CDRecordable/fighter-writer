@@ -33,6 +33,9 @@ const NEUTRAL_GROUND := [State.IDLE, State.WALK_F, State.WALK_B, State.CROUCH]
 
 signal took_damage(amount: int, blocked: bool)
 signal knocked_out
+## `hard` cuando se cae derribado o sin sentido, no cuando se aterriza de un
+## salto normal. La arena lo usa para levantar más polvo.
+signal landed(hard: bool)
 
 var stats: FighterStats = null
 var agent: Agents.Agent = null
@@ -382,6 +385,8 @@ func _land() -> void:
 	pos_y = 0
 	vel_y = 0
 	airborne = false
+	var hard := state == State.KO or state == State.HITSTUN
+	landed.emit(hard)
 	if state == State.KO:
 		vel_x = 0
 		return

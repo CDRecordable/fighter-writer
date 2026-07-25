@@ -18,7 +18,9 @@ const OUTPUT := "sprites/cristina_placeholder.png"
 const FONDO := Color(0, 0, 0, 0)
 const COLOR_CUERPO := Color(0.78, 0.20, 0.44)
 const COLOR_MIEMBRO := Color(0.94, 0.42, 0.62)
-const COLOR_GOLPE := Color(1.00, 0.85, 0.35)
+## Verde azulado a propósito: las chispas de impacto son amarillas, y si el
+## miembro que golpea también lo fuera no se vería el efecto encima.
+const COLOR_GOLPE := Color(0.33, 0.70, 0.70)
 const COLOR_CABEZA := Color(0.98, 0.86, 0.78)
 const COLOR_FRENTE := Color(0.15, 0.10, 0.18)
 

@@ -13,7 +13,11 @@ const TICKS_PER_SECOND := 60
 const ROUND_SECONDS := 99
 const ROUNDS_TO_WIN := 2
 
-const STAGE_HALF_WIDTH := 360  ## px a cada lado del centro
+## Escenario que se carga (stages/<id>/stage.json). Fase 1: el galeón de
+## Reverte, que es el que valida la Fase 2 según el plan.
+const STAGE_ID := "galeon"
+
+const STAGE_HALF_WIDTH := 360  ## px a cada lado del centro (por defecto)
 const VIEW_HALF_WIDTH := 240   ## mitad de la resolución interna (480)
 const WALL_MARGIN := 18        ## px que el cuerpo no puede pasar del borde
 const START_DISTANCE := 62     ## px de separación inicial entre luchadores
@@ -26,6 +30,19 @@ enum RoundState { INTRO, FIGHTING, KO, MATCH_END }
 
 var fighters: Array[Fighter] = []
 var projectiles: Array[Projectile] = []
+var stage: Stage = null
+var effects: Effects = null
+## Sacudida de cámara. Es puramente visual: desplaza la cámara, nunca una
+## posición del combate, así que no toca la simulación ni el determinismo.
+var shake_power: float = 0.0
+var shake_tick: int = 0
+## Punto de contacto del último golpe encontrado, para colocar las chispas.
+## Lo deja `_find_hit`, que es quien sabe dónde se han cruzado las cajas.
+var _contact_point := Vector2.ZERO
+## Medidas efectivas del escenario. Las manda el stage.json si existe; si no,
+## se quedan las constantes de arriba y el fondo provisional.
+var stage_half_width: int = STAGE_HALF_WIDTH
+var floor_screen_y: int = FLOOR_SCREEN_Y
 var hud: CanvasLayer = null
 var camera: Camera2D = null
 var dummy: Agents.Dummy = null
@@ -42,16 +59,48 @@ var dummy_mode_label: String = "Agresiva"
 
 
 func _ready() -> void:
+	_build_stage()
 	_build_camera()
 	_build_fighters()
+	_build_effects()
 	_build_hud()
 	_start_round(1)
+
+
+func _build_effects() -> void:
+	effects = Effects.new()
+	effects.name = "Efectos"
+	add_child(effects)
+	for fighter in fighters:
+		fighter.landed.connect(_on_fighter_landed.bind(fighter))
+
+
+func _on_fighter_landed(hard: bool, fighter: Fighter) -> void:
+	var at := Vector2(FP.floor_px(fighter.pos_x), 0.0)
+	effects.dust(at, 12 if hard else 6, 95.0 if hard else 55.0)
+	if hard:
+		_shake(1.6)
+
+
+## El escenario manda sobre sus propias medidas: cuánto mide de ancho y a qué
+## altura de pantalla queda el suelo. Así un escenario estrecho y agobiante o
+## uno largo son cosa de datos, no de tocar la arena.
+func _build_stage() -> void:
+	var data := StageData.load_stage(STAGE_ID)
+	if data == null:
+		return
+	stage_half_width = data.half_width
+	floor_screen_y = data.floor_screen_y
+	stage = Stage.new()
+	stage.name = "Escenario"
+	stage.setup(data)
+	add_child(stage)
 
 
 func _build_camera() -> void:
 	camera = Camera2D.new()
 	camera.name = "Camara"
-	camera.position = Vector2(0, -FLOOR_SCREEN_Y)
+	camera.position = Vector2(0, -floor_screen_y)
 	camera.position_smoothing_enabled = false
 	add_child(camera)
 	camera.make_current()
@@ -195,6 +244,9 @@ func _start_round(number: int) -> void:
 	clock_ticks = ROUND_SECONDS * TICKS_PER_SECOND
 	var start := FP.from_px(START_DISTANCE)
 	_clear_projectiles()
+	if effects != null:
+		effects.clear()
+	shake_power = 0.0
 	fighters[0].reset_for_round(-start, 1)
 	fighters[1].reset_for_round(start, -1)
 	banner = ""
@@ -253,8 +305,8 @@ func _clamp_to_stage() -> void:
 	var center := _camera_center_px()
 	var view_min := FP.from_px(float(center - VIEW_HALF_WIDTH + WALL_MARGIN))
 	var view_max := FP.from_px(float(center + VIEW_HALF_WIDTH - WALL_MARGIN))
-	var stage_min := FP.from_px(float(-STAGE_HALF_WIDTH + WALL_MARGIN))
-	var stage_max := FP.from_px(float(STAGE_HALF_WIDTH - WALL_MARGIN))
+	var stage_min := FP.from_px(float(-stage_half_width + WALL_MARGIN))
+	var stage_max := FP.from_px(float(stage_half_width - WALL_MARGIN))
 	for fighter in fighters:
 		fighter.pos_x = clampi(fighter.pos_x, maxi(view_min, stage_min), mini(view_max, stage_max))
 
@@ -264,11 +316,13 @@ func _clamp_to_stage() -> void:
 ## robaría su golpe: los intercambios simultáneos (trades) dejarían de existir.
 func _resolve_hits() -> void:
 	var hit_a := _find_hit(fighters[0], fighters[1])
+	var contact_a := _contact_point
 	var hit_b := _find_hit(fighters[1], fighters[0])
+	var contact_b := _contact_point
 	if hit_a != null:
-		_apply_hit(fighters[0], fighters[1], hit_a)
+		_apply_hit(fighters[0], fighters[1], hit_a, contact_a)
 	if hit_b != null:
-		_apply_hit(fighters[1], fighters[0], hit_b)
+		_apply_hit(fighters[1], fighters[0], hit_b, contact_b)
 
 
 func _find_hit(attacker: Fighter, defender: Fighter) -> MoveData:
@@ -281,11 +335,17 @@ func _find_hit(attacker: Fighter, defender: Fighter) -> MoveData:
 		for hurtbox in hurtboxes:
 			var b := hurtbox.to_world(defender.pos_x, defender.pos_y, defender.facing)
 			if BoxData.overlaps(a, b):
+				# Centro del solape: es donde el jugador está mirando cuando
+				# conecta, así que es donde tiene que salir la chispa.
+				_contact_point = Vector2(
+					FP.floor_px((maxi(a[0], b[0]) + mini(a[2], b[2])) / 2),
+					-FP.floor_px((maxi(a[1], b[1]) + mini(a[3], b[3])) / 2)
+				)
 				return attacker.current_move
 	return null
 
 
-func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData) -> void:
+func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData, contact: Vector2) -> void:
 	# Se marca antes de nada: un grupo de impacto pega una vez, aunque su
 	# hitbox siga activa varios frames.
 	attacker.register_hit()
@@ -294,7 +354,10 @@ func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData) -> void:
 	if result == Fighter.HitResult.COUNTERED:
 		# El contraataque se ha tragado el golpe: ni daño, ni hitstop, ni
 		# Tinta. La respuesta del que contra ya llegará por su cuenta.
+		effects.block(contact, attacker.facing)
 		return
+
+	_spawn_impact(contact, attacker.facing, move, result == Fighter.HitResult.BLOCKED)
 
 	attacker.hitstop = move.hitstop
 	defender.hitstop = move.hitstop
@@ -310,6 +373,23 @@ func _apply_hit(attacker: Fighter, defender: Fighter, move: MoveData) -> void:
 func _award_meter(attacker: Fighter, hit: HitProperties, blocked: bool) -> void:
 	var gain := hit.meter_block if blocked else hit.meter_hit
 	attacker.meter = mini(attacker.stats.max_meter, attacker.meter + gain / 2)
+
+
+## Chispas y sacudida. La fuerza sale del hitstop del golpe, que ya es la
+## medida de "peso" que usa el combate: así el efecto y la sensación no se
+## pueden desincronizar al tocar el balance.
+func _spawn_impact(contact: Vector2, direction: int, hit: HitProperties, blocked: bool) -> void:
+	var strength := clampf(float(hit.hitstop) / 10.0, 0.3, 1.6)
+	if blocked:
+		effects.block(contact, direction)
+		_shake(strength * 0.6)
+	else:
+		effects.hit(contact, direction, strength)
+		_shake(strength * 1.8)
+
+
+func _shake(power: float) -> void:
+	shake_power = maxf(shake_power, power)
 
 
 # --- Proyectiles -------------------------------------------------------------
@@ -334,7 +414,7 @@ func _tick_projectiles() -> void:
 		projectile.tick()
 		if not projectile.dead:
 			_check_projectile_hit(projectile)
-		if projectile.dead or absi(FP.floor_px(projectile.pos_x)) > STAGE_HALF_WIDTH:
+		if projectile.dead or absi(FP.floor_px(projectile.pos_x)) > stage_half_width:
 			projectile.queue_free()
 		else:
 			survivors.append(projectile)
@@ -350,11 +430,15 @@ func _check_projectile_hit(projectile: Projectile) -> void:
 			if not BoxData.overlaps(box, hurtbox.to_world(defender.pos_x, defender.pos_y, defender.facing)):
 				continue
 			var result := defender.receive_hit(projectile.data, projectile.pos_x)
+			var contact := Vector2(FP.floor_px(projectile.pos_x), -FP.floor_px(projectile.pos_y))
 			# Un proyectil se consume aunque lo contraataquen: la Asamblea
 			# absorbe el panfleto igual que absorbe un puño.
 			projectile.dead = true
 			if result == Fighter.HitResult.COUNTERED:
+				effects.block(contact, projectile.facing)
 				return
+			_spawn_impact(contact, projectile.facing, projectile.data,
+				result == Fighter.HitResult.BLOCKED)
 			defender.hitstop = projectile.data.hitstop
 			_award_meter(projectile.shooter, projectile.data, result == Fighter.HitResult.BLOCKED)
 			return
@@ -377,12 +461,26 @@ func _any_in_hitstop() -> bool:
 
 func _camera_center_px() -> int:
 	var mid := (fighters[0].pos_x + fighters[1].pos_x) / 2
-	var limit := STAGE_HALF_WIDTH - VIEW_HALF_WIDTH
+	var limit := stage_half_width - VIEW_HALF_WIDTH
 	return clampi(FP.floor_px(mid), -limit, limit)
 
 
 func _update_camera() -> void:
-	camera.position = Vector2(_camera_center_px(), -FLOOR_SCREEN_Y)
+	# Oscilación determinista, sin azar: la sacudida no debe meter aleatoriedad
+	# en el bucle del combate ni aunque sea solo visual.
+	shake_tick += 1
+	var offset := Vector2.ZERO
+	if shake_power > 0.05:
+		offset = Vector2(
+			sin(float(shake_tick) * 2.7) * shake_power,
+			sin(float(shake_tick) * 4.1) * shake_power * 0.6
+		)
+		shake_power *= 0.80
+	else:
+		shake_power = 0.0
+	camera.position = Vector2(_camera_center_px(), -floor_screen_y) + offset.round()
+	if stage != null:
+		stage.advance(camera.position.x)
 
 
 func _handle_dev_keys() -> void:
@@ -392,6 +490,7 @@ func _handle_dev_keys() -> void:
 			fighter.show_boxes = show_boxes
 		for projectile in projectiles:
 			projectile.show_boxes = show_boxes
+		queue_redraw()  # las reglas de distancia van con las cajas
 	if Input.is_action_just_pressed(&"dev_toggle_accessible"):
 		accessible_mode = not accessible_mode
 		for fighter in fighters:
@@ -408,13 +507,25 @@ func clock_seconds() -> int:
 
 
 func _draw() -> void:
-	# Escenario provisional: suelo y marcas cada 40 px para leer distancias.
-	var left := float(-STAGE_HALF_WIDTH)
-	var width := float(STAGE_HALF_WIDTH * 2)
+	if stage != null:
+		# Con escenario cargado, las marcas de distancia solo estorban; se
+		# encienden con las cajas (F1), que es cuando se están midiendo cosas.
+		if show_boxes:
+			_draw_reglas()
+		return
+	# Fondo provisional del prototipo gris, para cuando no hay escenario.
+	var left := float(-stage_half_width)
+	var width := float(stage_half_width * 2)
 	draw_rect(Rect2(left, -220, width, 220), Color(0.10, 0.07, 0.14))
 	draw_rect(Rect2(left, 0, width, 60), Color(0.17, 0.13, 0.22))
 	draw_line(Vector2(left, 0), Vector2(left + width, 0), Color(0.35, 0.30, 0.42), 1.0)
-	for x in range(-STAGE_HALF_WIDTH, STAGE_HALF_WIDTH + 1, 40):
+	_draw_reglas()
+
+
+## Marcas cada 40 px y los muros del escenario: sirven para leer distancias de
+## un vistazo cuando se está afinando el alcance de un golpe.
+func _draw_reglas() -> void:
+	for x in range(-stage_half_width, stage_half_width + 1, 40):
 		draw_line(Vector2(x, 0), Vector2(x, 6), Color(0.28, 0.24, 0.34), 1.0)
-	for x in [-STAGE_HALF_WIDTH + WALL_MARGIN, STAGE_HALF_WIDTH - WALL_MARGIN]:
+	for x in [-stage_half_width + WALL_MARGIN, stage_half_width - WALL_MARGIN]:
 		draw_line(Vector2(x, -220), Vector2(x, 0), Color(0.30, 0.20, 0.30), 1.0)
