@@ -13,7 +13,6 @@ extends SceneTree
 ## convierte "creo que no enlaza nada" en una tabla.
 
 const ARENA := preload("res://scenes/combat_arena.tscn")
-const PERSONAJE := "cristina_morales"
 const CERCA := 20.0
 ## Al bloquear se mantiene atrás, o sea que el muñeco ANDA hacia atrás y los
 ## golpes cortos dejan de alcanzarle. Se empieza más pegado para medir el
@@ -45,11 +44,17 @@ func _process(_delta: float) -> bool:
 		return true
 	_finished = true
 
-	var stats := CharacterLoader.load_stats(PERSONAJE)
+	for personaje in CharacterLoader.list_ids():
+		_informar(personaje)
+	quit(0)
+	return true
+
+
+func _informar(personaje: String) -> void:
+	var stats := CharacterLoader.load_stats(personaje)
 	if stats == null:
-		printerr("No se pudo cargar ", PERSONAJE)
-		quit(1)
-		return true
+		printerr("No se pudo cargar ", personaje)
+		return
 
 	var filas := []
 	for entrada: Dictionary in NORMALES:
@@ -59,20 +64,21 @@ func _process(_delta: float) -> bool:
 		filas.append({
 			"move": move,
 			"derriba": move.knockdown,
-			"al_golpear": _medir(entrada, move, false),
-			"al_bloquear": _medir(entrada, move, true),
+			"al_golpear": _medir(personaje, entrada, move, false),
+			"al_bloquear": _medir(personaje, entrada, move, true),
 		})
 
-	_imprimir_tabla(filas)
+	_imprimir_tabla(personaje, filas)
 	_imprimir_enlaces(filas)
-	quit(0)
-	return true
 
 
 ## Ejecuta el golpe contra el muñeco y devuelve la ventaja medida, o null si no
 ## llegó a conectar.
-func _medir(entrada: Dictionary, move: MoveData, bloqueando: bool) -> Variant:
+func _medir(personaje: String, entrada: Dictionary, move: MoveData, bloqueando: bool) -> Variant:
 	var arena: CombatArena = ARENA.instantiate()
+	# Se fija antes de meterla en el árbol: _ready() es quien crea a los
+	# luchadores, y para entonces ya tiene que saber a quién medir.
+	arena.p1_override = personaje
 	root.add_child(arena)
 	while arena.round_state != CombatArena.RoundState.FIGHTING:
 		arena.tick()
@@ -115,20 +121,20 @@ func _medir(entrada: Dictionary, move: MoveData, bloqueando: bool) -> Variant:
 	return resultado
 
 
-func _imprimir_tabla(filas: Array) -> void:
+func _imprimir_tabla(personaje: String, filas: Array) -> void:
 	print("")
-	print("VENTAJA DE FRAMES — %s" % PERSONAJE)
+	print("VENTAJA DE FRAMES — %s" % personaje)
 	print("(positivo = te toca a ti antes que al rival)")
 	print("")
-	print("  %-16s %-12s %8s %10s" % ["golpe", "s/a/r", "al dar", "bloqueado"])
-	print("  " + "-".repeat(50))
+	print("  %-22s %-10s %8s %10s" % ["golpe", "s/a/r", "al dar", "bloqueado"])
+	print("  " + "-".repeat(54))
 	for fila: Dictionary in filas:
 		var move: MoveData = fila["move"]
 		# Tras un derribo no hay "ventaja" que valga: el rival está en el
 		# suelo. Ahí lo que se mide es la presión al levantarse, que es otra
 		# cosa y no se lee con este número.
 		var al_dar: String = "derribo" if bool(fila["derriba"]) else _fmt(fila["al_golpear"])
-		print("  %-16s %-12s %8s %10s" % [
+		print("  %-22s %-10s %8s %10s" % [
 			move.display_name,
 			"%d/%d/%d" % [move.startup, move.active, move.recovery],
 			al_dar,

@@ -12,12 +12,13 @@ extends SceneTree
 ## referencia exacta de qué silueta tiene que cubrir cada celda para que el
 ## golpe sea legible. Cuando entregue su PNG, se sustituye el archivo y ya.
 
-const CHARACTER := "cristina_morales"
-const OUTPUT := "sprites/cristina_placeholder.png"
+## Se generan las hojas de TODOS los personajes de characters/. Añadir a Cela
+## no debe obligar a tocar esta herramienta: la carpeta manda, como en todo lo
+## demás del proyecto.
 
 const FONDO := Color(0, 0, 0, 0)
-const COLOR_CUERPO := Color(0.78, 0.20, 0.44)
-const COLOR_MIEMBRO := Color(0.94, 0.42, 0.62)
+## El cuerpo toma el color del propio personaje (`debug_color`), así dos
+## luchadores no salen idénticos y se distingue quién es quién sin sprites.
 ## Verde azulado a propósito: las chispas de impacto son amarillas, y si el
 ## miembro que golpea también lo fuera no se vería el efecto encima.
 const COLOR_GOLPE := Color(0.33, 0.70, 0.70)
@@ -44,30 +45,40 @@ func _process(_delta: float) -> bool:
 		return true
 	_finished = true
 
-	var stats := CharacterLoader.load_stats(CHARACTER)
+	var fallos := 0
+	for character_id in CharacterLoader.list_ids():
+		if not _generar(character_id):
+			fallos += 1
+	quit(1 if fallos > 0 else 0)
+	return true
+
+
+func _generar(character_id: String) -> bool:
+	var stats := CharacterLoader.load_stats(character_id)
 	if stats == null:
-		printerr("No se pudo cargar el personaje ", CHARACTER)
-		quit(1)
-		return true
+		printerr("No se pudo cargar el personaje ", character_id)
+		return false
+	if stats.sprites == null or stats.animations.is_empty():
+		printerr("%s no declara hoja de sprites ni animaciones." % character_id)
+		return false
 
 	var celdas := _recoger_celdas(stats)
 	if celdas.is_empty():
-		printerr("El personaje no declara ninguna animación.")
-		quit(1)
-		return true
+		printerr("%s no declara ninguna animación." % character_id)
+		return false
 
 	var imagen := _dibujar(stats, celdas)
-	var destino := "res://characters/%s/%s" % [CHARACTER, OUTPUT]
+	# El nombre sale del propio JSON: si el personaje declara otra hoja, es esa
+	# la que hay que generar, no una con nombre inventado aquí.
+	var destino := "res://characters/%s/%s" % [character_id, stats.sprites.sheet_path]
 	var error := imagen.save_png(ProjectSettings.globalize_path(destino))
 	if error != OK:
 		printerr("No se pudo guardar ", destino, " (error ", error, ")")
-		quit(1)
-		return true
+		return false
 
 	print("Hoja generada: %s  (%d celdas, %dx%d px)" % [
 		destino, celdas.size(), imagen.get_width(), imagen.get_height(),
 	])
-	quit(0)
 	return true
 
 
@@ -137,11 +148,13 @@ func _dibujar(stats: FighterStats, celdas: Dictionary) -> Image:
 	imagen.fill(FONDO)
 
 	for indice: int in celdas.keys():
-		_dibujar_celda(imagen, conjunto, indice, celdas[indice])
+		_dibujar_celda(imagen, conjunto, indice, celdas[indice], stats.debug_color)
 	return imagen
 
 
-func _dibujar_celda(imagen: Image, conjunto: SpriteSet, indice: int, celda: Celda) -> void:
+func _dibujar_celda(
+	imagen: Image, conjunto: SpriteSet, indice: int, celda: Celda, color_cuerpo: Color
+) -> void:
 	var origen := Vector2i(
 		(indice % conjunto.columns) * conjunto.cell_width,
 		(indice / conjunto.columns) * conjunto.cell_height
@@ -157,7 +170,7 @@ func _dibujar_celda(imagen: Image, conjunto: SpriteSet, indice: int, celda: Celd
 	var cuerpo := celda.cuerpo
 	if cuerpo != null:
 		var rect := _rect_de(conjunto, origen, cuerpo, balanceo)
-		_rellenar(imagen, rect, limite, COLOR_CUERPO)
+		_rellenar(imagen, rect, limite, color_cuerpo)
 		# Cabeza y franja frontal: sin ellas no se distingue hacia dónde mira.
 		var cabeza := Rect2i(
 			rect.position.x + rect.size.x / 4,
@@ -176,7 +189,10 @@ func _dibujar_celda(imagen: Image, conjunto: SpriteSet, indice: int, celda: Celd
 		# piernas que el movimiento saca fuera de la silueta.
 		if cuerpo != null and miembro.x == cuerpo.x and miembro.w == cuerpo.w:
 			continue
-		_rellenar(imagen, _rect_de(conjunto, origen, miembro, balanceo), limite, COLOR_MIEMBRO)
+		_rellenar(
+			imagen, _rect_de(conjunto, origen, miembro, balanceo), limite,
+			color_cuerpo.lightened(0.35)
+		)
 
 	for golpe in celda.golpes:
 		_rellenar(imagen, _rect_de(conjunto, origen, golpe, balanceo), limite, COLOR_GOLPE)

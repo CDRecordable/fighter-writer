@@ -23,8 +23,10 @@ var timeline_starts: Array[bool] = []
 ## movimiento no se invoca por comando, sino por postura + botón (los normales).
 var motion: StringName = &""
 ## Botones que lo disparan: "p" (cualquier puño), "k" (cualquier patada) o uno
-## concreto ("lp", "hk"...).
+## concreto ("lp", "hk"...). Con "+" se piden varios A LA VEZ ("lp+hp"), que es
+## como se separa un súper del especial que comparte su misma entrada.
 var button_mask: int = 0
+var button_requires_all: bool = false
 ## Tinta que cuesta. > 0 lo convierte en súper.
 var meter_cost: int = 0
 ## Ticks que se congela el rival al arrancar un súper (el "cinematic freeze").
@@ -77,7 +79,9 @@ static func from_dict(id_in: StringName, d: Dictionary) -> MoveData:
 				move.timeline_starts.append(i == 0)
 
 	move.motion = StringName(String(d.get("motion", "")))
-	move.button_mask = _parse_buttons(String(d.get("button", "")))
+	var boton := String(d.get("button", ""))
+	move.button_requires_all = boton.contains("+")
+	move.button_mask = _parse_buttons(boton)
 	move.meter_cost = int(d.get("meter_cost", 0))
 	move.super_freeze = int(d.get("super_freeze", 0))
 	move.max_range = FP.px_from(d, "max_range", 0.0)
@@ -114,6 +118,11 @@ static func _parse_stance(s: String) -> Stance:
 
 
 static func _parse_buttons(s: String) -> int:
+	if s.contains("+"):
+		var mask := 0
+		for parte in s.split("+", false):
+			mask |= _parse_buttons(parte.strip_edges())
+		return mask
 	match s.to_lower():
 		"lp": return FighterInput.BTN_LP
 		"hp": return FighterInput.BTN_HP

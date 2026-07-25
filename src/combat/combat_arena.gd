@@ -47,6 +47,12 @@ var hud: CanvasLayer = null
 var camera: Camera2D = null
 var dummy: Agents.Dummy = null
 
+## Quién pelea. Se pueden fijar antes de meter la arena en el árbol; vacío
+## significa "elige tú". Es por donde entrará la pantalla de selección de la
+## Fase 2, y por donde el informe de frames mide a cada personaje.
+var p1_override: String = ""
+var p2_override: String = ""
+
 var round_state: int = RoundState.INTRO
 var round_state_frame: int = 0
 var round_number: int = 1
@@ -114,23 +120,35 @@ func _build_fighters() -> void:
 		push_error("No hay personajes en res://characters/. El combate no puede arrancar.")
 		return
 
-	# Fase 1: Cristina contra sí misma. Es a propósito — un espejo aísla el
-	# game feel del balance entre personajes, que aún no toca.
-	var character_id := "cristina_morales" if ids.has("cristina_morales") else ids[0]
+	# Jugable Cristina; de rival, el primer otro personaje que haya. En cuanto
+	# existe un segundo escritor deja de ser un espejo y el balance empieza a
+	# significar algo.
+	var p1_id := p1_override
+	if p1_id == "" or not ids.has(p1_id):
+		p1_id = "cristina_morales" if ids.has("cristina_morales") else ids[0]
+	var p2_id := p2_override
+	if p2_id == "" or not ids.has(p2_id):
+		p2_id = p1_id
+		for id in ids:
+			if id != p1_id:
+				p2_id = id
+				break
+	var espejo := p1_id == p2_id
 
 	for index in [1, 2]:
-		var stats := CharacterLoader.load_stats(character_id)
+		var stats := CharacterLoader.load_stats(p1_id if index == 1 else p2_id)
 		if stats == null:
 			return
 		var fighter := Fighter.new()
 		fighter.name = "Luchador%d" % index
 		if index == 2:
-			stats.debug_color = Color(0.18, 0.71, 0.77)
 			dummy = Agents.Dummy.new()
 			fighter.setup(stats, dummy, index)
-			# En espejo los dos usan la misma hoja: sin esto son el mismo
-			# muñeco y no sabes a quién estás moviendo.
-			fighter.sprite_tint = Color(0.45, 0.85, 1.0)
+			if espejo:
+				# En espejo los dos usan la misma hoja: sin esto son el mismo
+				# muñeco y no sabes a quién estás moviendo.
+				stats.debug_color = Color(0.18, 0.71, 0.77)
+				fighter.sprite_tint = Color(0.45, 0.85, 1.0)
 		else:
 			fighter.setup(stats, Agents.Human.new(1), index)
 		add_child(fighter)

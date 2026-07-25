@@ -67,6 +67,10 @@ func _run_all() -> void:
 	_test_super_cuesta_tinta()
 	_test_agarre()
 
+	_test_dos_personajes()
+	_test_carga_de_reverte()
+	_test_super_de_dos_botones()
+
 	_test_ventaja_de_frames()
 	_test_contador_de_combo()
 	_test_reinicio_instantaneo()
@@ -190,6 +194,76 @@ func _test_rondas_y_ko() -> void:
 
 	_check("dejar a cero la vida acaba la ronda", arena.round_state == CombatArena.RoundState.KO)
 	_check("la ronda se le apunta al ganador", arena.rounds_won[0] == 1)
+	arena.free()
+
+
+# --- Segundo personaje -------------------------------------------------------
+
+func _test_dos_personajes() -> void:
+	# La promesa de la arquitectura es "añadir un escritor = añadir una
+	# carpeta". Hasta que no hay un segundo, eso es una promesa, no un hecho.
+	_check("hay al menos dos personajes en characters/",
+		CharacterLoader.list_ids().size() >= 2)
+	var arena := _make_arena()
+	_check("el combate por defecto ya no es un espejo",
+		arena.fighters[0].stats.id != arena.fighters[1].stats.id)
+	_check("el rival tiene sus propios movimientos",
+		arena.fighters[1].stats.get_move(&"tuit_incendiario") != null)
+	arena.free()
+
+
+func _test_carga_de_reverte() -> void:
+	var arena := _make_arena("perez_reverte", "cristina_morales")
+	var reverte: Fighter = arena.fighters[0]
+	var agent: Scripted = reverte.agent
+	_separate(arena, 90.0)
+
+	# Mantener atrás el tiempo de carga y soltar hacia delante.
+	agent.hold(-1)
+	_run(arena, InputBuffer.CHARGE_TICKS + 4)
+	agent.hold(1)
+	agent.press(FighterInput.BTN_LP)
+	_run(arena, 3)
+
+	_check("la carga atrás→adelante saca el Tuit Incendiario",
+		reverte.current_move != null and reverte.current_move.id == &"tuit_incendiario")
+	_run(arena, 20)
+	_check("y el tuit sale volando", arena.projectiles.size() == 1)
+	arena.free()
+
+
+func _test_super_de_dos_botones() -> void:
+	# El súper de Reverte comparte la carga del proyectil. Se separan pidiendo
+	# los dos puños a la vez; si esto falla, con la barra llena el proyectil no
+	# saldría nunca.
+	var arena := _make_arena("perez_reverte", "cristina_morales")
+	var reverte: Fighter = arena.fighters[0]
+	var agent: Scripted = reverte.agent
+	reverte.meter = reverte.stats.max_meter
+	_separate(arena, 90.0)
+
+	agent.hold(-1)
+	_run(arena, InputBuffer.CHARGE_TICKS + 4)
+	agent.hold(1)
+	agent.press(FighterInput.BTN_LP)
+	_run(arena, 3)
+	_check("con la barra llena y UN puño sale el especial, no el súper",
+		reverte.current_move != null and reverte.current_move.id == &"tuit_incendiario")
+	arena.free()
+
+	arena = _make_arena("perez_reverte", "cristina_morales")
+	reverte = arena.fighters[0]
+	agent = reverte.agent
+	reverte.meter = reverte.stats.max_meter
+	_separate(arena, 90.0)
+
+	agent.hold(-1)
+	_run(arena, InputBuffer.CHARGE_TICKS + 4)
+	agent.hold(1)
+	agent.press(FighterInput.BTN_LP | FighterInput.BTN_HP)
+	_run(arena, 3)
+	_check("con los DOS puños sale Cabo Trafalgar",
+		reverte.current_move != null and reverte.current_move.id == &"super_cabo_trafalgar")
 	arena.free()
 
 
@@ -474,8 +548,11 @@ func _input_motion(arena: CombatArena, fighter: Fighter, dirs: Array) -> void:
 		agent.hold(dir[0], dir[1])
 		_run(arena, 2)
 
-func _make_arena() -> CombatArena:
+func _make_arena(p1: String = "", p2: String = "") -> CombatArena:
 	var arena: CombatArena = ARENA_SCENE.instantiate()
+	# Se fijan antes de entrar en el árbol: _ready() crea a los luchadores.
+	arena.p1_override = p1
+	arena.p2_override = p2
 	root.add_child(arena)
 
 	# Fuera el intro: las pruebas quieren el combate, no la cuenta atrás.

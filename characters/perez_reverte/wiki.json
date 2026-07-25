@@ -1,0 +1,81 @@
+{
+  "_estado": "BORRADOR — pendiente de verificación por el equipo antes de la Fase 2. La wiki es la capa educativa del juego (PLAN.md §6): cada dato de aquí acaba delante de un lector, así que nada entra sin comprobar.",
+
+  "id": "perez_reverte",
+  "display_name": "Arturo Pérez-Reverte",
+  "epigrafe": "El reportero de guerra que se hizo espadachín",
+  "nacimiento": { "anio": 1951, "lugar": "Cartagena" },
+  "base": "Madrid",
+  "retrato": "res://characters/perez_reverte/sprites/retrato.png",
+
+  "bibliografia": [
+    {
+      "titulo": "El húsar",
+      "anio": 1986,
+      "por_que": "Su primera novela: una carga de caballería napoleónica contada como una desilusión."
+    },
+    {
+      "titulo": "La tabla de Flandes",
+      "anio": 1990,
+      "por_que": "Un cuadro, una partida de ajedrez y un crimen del siglo XV. Su primer gran éxito."
+    },
+    {
+      "titulo": "El club Dumas",
+      "anio": 1993,
+      "por_que": "Bibliófilos, demonios y libros raros. Roman Polanski la llevó al cine como 'La novena puerta'."
+    },
+    {
+      "titulo": "El capitán Alatriste",
+      "anio": 1996,
+      "por_que": "Arranca la serie que le da nombre popular: espadachines en el Madrid del Siglo de Oro."
+    },
+    {
+      "titulo": "La Reina del Sur",
+      "anio": 2002,
+      "por_que": "Una mexicana levanta un imperio del narcotráfico en el Estrecho. Su novela más leída fuera de España."
+    },
+    {
+      "titulo": "Cabo Trafalgar",
+      "anio": 2004,
+      "por_que": "La batalla de Trafalgar contada desde la cubierta y con muy mala leche. Da nombre a su súper en el juego."
+    }
+  ],
+
+  "premios": [
+    {
+      "nombre": "Miembro de la Real Academia Española (silla T)",
+      "anio": 2003,
+      "obra": "—"
+    }
+  ],
+
+  "curiosidades": [
+    "Fue reportero de guerra durante unos veinte años, para el diario Pueblo y para TVE. Casi toda su ficción bebe de eso.",
+    "Es académico de la RAE, la institución cuyo lema —'Limpia, fija y da esplendor'— da nombre a su antiaéreo en el juego.",
+    "Su faceta más polémica es la de columnista y usuario de redes: de ahí sale el Tuit Incendiario."
+  ],
+
+  "cita": {
+    "texto": "",
+    "fuente": "PENDIENTE — elegir una cita corta y con atribución (derecho de cita, PLAN.md §10.5)."
+  },
+
+  "moveset_explicado": [
+    {
+      "movimiento": "Tuit Incendiario",
+      "por_que": "Por su actividad combativa en redes. Es su herramienta de control a distancia: te obliga a acercarte cuando él quiere."
+    },
+    {
+      "movimiento": "Estocada Alatriste",
+      "por_que": "Por el capitán Alatriste. Cubre de golpe toda la distancia que él se ha encargado de mantener."
+    },
+    {
+      "movimiento": "Limpia, Fija y da Esplendor",
+      "por_que": "El lema de la Real Academia Española, de la que es miembro. Golpe de diccionario hacia arriba: su respuesta a quien salta."
+    },
+    {
+      "movimiento": "Cabo Trafalgar",
+      "por_que": "Por su novela sobre la batalla de 1805. El súper es una andanada de cañones navales desde el fondo del escenario."
+    }
+  ]
+}

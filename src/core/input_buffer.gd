@@ -114,6 +114,17 @@ func pressed_within(mask: int, window: int = BUTTON_LENIENCY) -> int:
 	return 0
 
 
+## ¿Se han pulsado TODOS estos botones dentro de la ventana? Hace falta para los
+## movimientos de dos botones: sin esto, un súper de carga y el especial de
+## carga que comparte su misma entrada se pisan, y el súper se come al especial
+## siempre que haya barra.
+func pressed_all_within(mask: int, window: int = BUTTON_LENIENCY) -> bool:
+	var acumulado := 0
+	for age in mini(window, _filled):
+		acumulado |= _presses[(_head - age + SIZE * 2) % SIZE]
+	return (acumulado & mask) == mask
+
+
 ## Al arrancar cualquier movimiento: olvida las pulsaciones para que la misma
 ## no dispare un segundo movimiento al tick siguiente. Las direcciones se
 ## conservan, que el jugador sigue moviendo la palanca.

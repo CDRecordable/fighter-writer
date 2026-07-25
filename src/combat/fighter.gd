@@ -247,7 +247,10 @@ func _try_command_move(stance: MoveData.Stance) -> bool:
 	for move: MoveData in stats.command_moves:
 		if not _can_start(move, stance):
 			continue
-		if buffer.pressed_within(move.button_mask) == 0:
+		if move.button_requires_all:
+			if not buffer.pressed_all_within(move.button_mask):
+				continue
+		elif buffer.pressed_within(move.button_mask) == 0:
 			continue
 		if not buffer.matches(move.motion):
 			continue

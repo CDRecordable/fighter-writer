@@ -64,6 +64,12 @@ Ejecuta cada golpe contra el muñeco, mide la ventaja real que deja y aplica la
 regla clásica —**X enlaza con Y si la ventaja al golpear de X es mayor o igual
 que el startup de Y**— para listar qué combos permiten los números actuales.
 
+## Personajes
+
+**Cristina Morales** (jugable) contra **Pérez-Reverte** (rival). Ella corre y
+presiona; él espera y castiga. Los dos existen solo como datos: sus carpetas en
+`characters/` no tienen ni una línea de código propia.
+
 ## Movimientos de Cristina Morales
 
 | Entrada | Movimiento | |
@@ -78,6 +84,23 @@ En **modo accesible** (`F3`) no hacen falta medias lunas: el botón de especial
 con la dirección que estés manteniendo. Neutro = Danza Bruta, `↓` = Asamblea,
 `↑` = súper. La correspondencia es provisional y hay que probarla con gente no
 jugona antes de cerrarla.
+
+## Movimientos de Pérez-Reverte
+
+Todo lo suyo son **cargas**: hay que mantener una dirección unos 45 ticks (0,75 s)
+antes de soltarla. No es una molestia, es el personaje — Reverte no improvisa,
+tiene que haber estado esperando.
+
+| Entrada | Movimiento | |
+|---|---|---|
+| mantener `←`, luego `→` + puño | **Tuit Incendiario** | Proyectil rápido y horizontal |
+| mantener `←`, luego `→` + patada | **Estocada Alatriste** | Embestida que cubre toda la distancia |
+| mantener `↓`, luego `↑` + puño | **Limpia, Fija y da Esplendor** | Antiaéreo que derriba |
+| mantener `←`, luego `→` + **los dos puños** | **Cabo Trafalgar** | Súper. Gasta toda la Tinta |
+
+El súper pide los dos puños **a la vez** porque comparte la carga del Tuit. Sin
+eso, con la barra llena el proyectil no saldría nunca: el súper se lo comería
+siempre.
 
 ## Qué hay implementado
 

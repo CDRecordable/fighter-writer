@@ -9,6 +9,10 @@ extends RefCounted
 ## de arte para nada).
 
 var texture: Texture2D = null
+## Ruta relativa a la carpeta del personaje, tal cual la declara el JSON. La
+## usa el generador de placeholders para escribir en el archivo correcto en vez
+## de inventarse un nombre.
+var sheet_path: String = ""
 var cell_width: int = 128
 var cell_height: int = 128
 var pivot_x: int = 64
@@ -27,6 +31,7 @@ static func from_dict(character_id: String, d: Dictionary) -> SpriteSet:
 	set.columns = maxi(1, int(d.get("columns", 8)))
 
 	var sheet := String(d.get("sheet", ""))
+	set.sheet_path = sheet
 	if sheet != "":
 		var path := "res://characters/%s/%s" % [character_id, sheet]
 		# Sin hoja no se rompe nada: el luchador sigue dibujándose como el

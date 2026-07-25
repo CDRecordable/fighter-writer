@@ -23,3 +23,4 @@ o generado, correcto. Si viene de fuera, hay que declararlo antes
 de publicar:
 
 - `res://characters/cristina_morales/fighter.json`
+- `res://characters/perez_reverte/fighter.json`
