@@ -65,7 +65,12 @@ regla clásica —**X enlaza con Y si la ventaja al golpear de X es mayor o igua
 que el startup de Y**— para listar qué combos permiten los números actuales.
 
 El juego arranca en un **menú** con dos mitades: `COMBATE` y `BIBLIOTECA`.
-Desde el combate, `Esc` vuelve al menú.
+`COMBATE` lleva a la **selección de escritor**: eliges el tuyo y el del rival,
+así que se puede probar cualquier enfrentamiento —espejos incluidos— sin tocar
+código. Desde el combate, `Esc` vuelve al menú.
+
+El jugador 2 lo lleva la IA, pero elegir también su personaje cuesta lo mismo y
+deja medio hecho el VS local del backlog (PLAN.md §11).
 
 ## La Biblioteca
 

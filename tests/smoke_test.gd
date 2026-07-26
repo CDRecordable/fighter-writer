@@ -71,6 +71,7 @@ func _run_all() -> void:
 	_test_carga_de_reverte()
 	_test_super_de_dos_botones()
 
+	_test_cualquier_enfrentamiento()
 	_test_fichas_de_la_biblioteca()
 	_test_desbloqueo_por_victoria()
 
@@ -268,6 +269,29 @@ func _test_super_de_dos_botones() -> void:
 	_check("con los DOS puños sale Cabo Trafalgar",
 		reverte.current_move != null and reverte.current_move.id == &"super_cabo_trafalgar")
 	arena.free()
+
+
+# --- Selección ---------------------------------------------------------------
+
+func _test_cualquier_enfrentamiento() -> void:
+	# La pantalla de selección deja elegir cualquier pareja, espejos incluidos.
+	# Si un personaje reventara la arena en alguna combinación, el jugador se
+	# lo encontraría antes que nadie: aquí se comprueban todas.
+	var ids := CharacterLoader.list_ids()
+	var fallos := PackedStringArray()
+	for a in ids:
+		for b in ids:
+			var arena := _make_arena(a, b)
+			var bien := (
+				arena.fighters.size() == 2
+				and String(arena.fighters[0].stats.id) == a
+				and String(arena.fighters[1].stats.id) == b
+			)
+			if not bien:
+				fallos.append("%s vs %s" % [a, b])
+			arena.free()
+	_check("cualquier pareja de escritores arranca (%d combinaciones)" % (ids.size() * ids.size()),
+		fallos.is_empty())
 
 
 # --- Biblioteca --------------------------------------------------------------

@@ -3,7 +3,7 @@ extends Control
 ## mitades a las que llegar —el combate y la Biblioteca— y no para ser bonito.
 ## El menú de verdad, con su arte y su música, es de la Fase 4.
 
-const COMBATE := "res://scenes/combat_arena.tscn"
+const COMBATE := "res://scenes/seleccion.tscn"
 const BIBLIOTECA := "res://scenes/biblioteca.tscn"
 
 const FONDO := Color(0.09, 0.07, 0.13)
@@ -12,7 +12,7 @@ const TENUE := Color(0.58, 0.55, 0.64)
 const ACENTO := Color(0.95, 0.83, 0.25)
 
 var _opciones := [
-	{ "texto": "COMBATE", "pie": "Cristina Morales contra Pérez-Reverte", "escena": COMBATE },
+	{ "texto": "COMBATE", "pie": "Elige escritor y a quién zurrarle", "escena": COMBATE },
 	{ "texto": "BIBLIOTECA", "pie": "Las fichas de los escritores", "escena": BIBLIOTECA },
 	{ "texto": "SALIR", "pie": "", "escena": "" },
 ]
