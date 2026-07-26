@@ -8,7 +8,7 @@ config_version=5
 
 config/name="Writer Fighter"
 config/description="Juego de lucha 2D en pixel art protagonizado por escritores españoles."
-run/main_scene="res://scenes/combat_arena.tscn"
+run/main_scene="res://scenes/main_menu.tscn"
 config/features=PackedStringArray("4.3", "GL Compatibility")
 config/icon="res://icon.svg"
 

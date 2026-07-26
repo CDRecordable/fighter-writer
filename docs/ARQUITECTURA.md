@@ -227,13 +227,33 @@ publicar incumpliéndola sin enterarse. La herramienta además **avisa de los
 archivos que no declaran créditos**, así que un asset de fuera no puede colarse
 en silencio.
 
-## 13. Resolución y render
+## 13. La Biblioteca se dibuja con Control, el HUD a mano
+
+Son dos problemas distintos y por eso usan dos herramientas distintas.
+
+El HUD del combate son **pocas cosas muy colocadas**: barras, reloj, un panel de
+números. Ahí `_draw()` a mano da control exacto y cero jerarquía de nodos.
+
+La Biblioteca es **texto largo que se ajusta y se desplaza**. Eso ya lo resuelve
+el motor con `Label` autowrap dentro de un `ScrollContainer`, y reimplementarlo
+a mano sería tirar el trabajo de otros por coherencia mal entendida.
+
+El retrato, mientras no exista el dibujo definitivo, es la celda de reposo de la
+propia hoja de sprites del personaje. No es un retrato, pero es SU silueta y no
+un hueco gris — el mismo criterio que el resto de placeholders del proyecto.
+
+**`Progreso` es una clase estática, no un autoload.** Los autoloads no se
+resuelven cuando Godot corre con `--script`, que es justamente como se ejecutan
+las pruebas y las herramientas de `tools/`. Con métodos estáticos el progreso
+funciona igual en el juego, en los tests y en un script suelto.
+
+## 14. Resolución y render
 
 480×270 interno con escalado entero (PLAN.md §7) y filtro *nearest*. Las
 posiciones se redondean al píxel al dibujar (`FP.floor_px`): sin eso el pixel art
 vibra al moverse, que es el defecto más típico de un 2D mal configurado.
 
-## 14. Lo que es deliberadamente provisional
+## 15. Lo que es deliberadamente provisional
 
 Esto se tira sin pena cuando llegue su fase:
 
@@ -247,7 +267,7 @@ Esto se tira sin pena cuando llegue su fase:
 - La correspondencia dirección→especial del modo accesible, que hay que decidir
   probándola con gente que no juega a juegos de lucha.
 
-## 15. Lo que falta para cerrar la Fase 1
+## 16. Lo que falta para cerrar la Fase 1
 
 La lista de sistemas del plan está completa, y los **combos por enlace natural
 ya están comprobados**: `tools/informe_frames.gd` encuentra tres (jab → jab,

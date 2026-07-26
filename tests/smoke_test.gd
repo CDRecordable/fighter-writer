@@ -71,6 +71,9 @@ func _run_all() -> void:
 	_test_carga_de_reverte()
 	_test_super_de_dos_botones()
 
+	_test_fichas_de_la_biblioteca()
+	_test_desbloqueo_por_victoria()
+
 	_test_ventaja_de_frames()
 	_test_contador_de_combo()
 	_test_reinicio_instantaneo()
@@ -265,6 +268,55 @@ func _test_super_de_dos_botones() -> void:
 	_check("con los DOS puños sale Cabo Trafalgar",
 		reverte.current_move != null and reverte.current_move.id == &"super_cabo_trafalgar")
 	arena.free()
+
+
+# --- Biblioteca --------------------------------------------------------------
+
+func _test_fichas_de_la_biblioteca() -> void:
+	# La mitad educativa del juego depende de que cada escritor jugable tenga
+	# algo que leer. Un personaje sin ficha es un agujero en el producto, no un
+	# detalle pendiente.
+	var completos := 0
+	for id in CharacterLoader.list_ids():
+		var entry := WikiEntry.load_for(id)
+		if entry == null:
+			_check("%s tiene wiki.json" % id, false)
+			continue
+		var tiene_contenido := (
+			entry.display_name != ""
+			and not entry.bibliografia.is_empty()
+			and not entry.moveset.is_empty()
+		)
+		_check("la ficha de %s tiene obra y explicación de sus golpes" % id, tiene_contenido)
+		if tiene_contenido:
+			completos += 1
+	_check("todos los escritores tienen ficha (%d)" % completos,
+		completos == CharacterLoader.list_ids().size())
+
+
+func _test_desbloqueo_por_victoria() -> void:
+	Progreso.olvidar_todo()
+	var arena := _make_arena()
+	var rival: Fighter = arena.fighters[1]
+	var rival_id := String(rival.stats.id)
+	_check("de entrada la ficha del rival está bloqueada",
+		not Progreso.esta_desbloqueado(rival_id))
+
+	# Se fuerza el final del combate: dos rondas ganadas por el jugador.
+	arena.rounds_won = [CombatArena.ROUNDS_TO_WIN - 1, 0]
+	rival.health = 1
+	(arena.fighters[0].agent as Scripted).press(FighterInput.BTN_HP)
+	_run(arena, 30)
+	for i in 200:
+		arena.tick()
+		if arena.round_state == CombatArena.RoundState.MATCH_END:
+			break
+
+	_check("ganar el combate desbloquea la ficha del rival",
+		Progreso.esta_desbloqueado(rival_id))
+	arena.free()
+	# No se deja el progreso tocado: la ficha se gana jugando, no pasando tests.
+	Progreso.olvidar_todo()
 
 
 # --- Modo entrenamiento ------------------------------------------------------

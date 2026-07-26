@@ -252,7 +252,12 @@ func _tick_ko() -> void:
 	_clamp_to_stage()
 	if round_state_frame >= KO_TICKS:
 		if rounds_won[0] >= ROUNDS_TO_WIN or rounds_won[1] >= ROUNDS_TO_WIN:
-			banner = "GANA %s" % fighters[0 if rounds_won[0] > rounds_won[1] else 1].stats.display_name.to_upper()
+			var ganador := 0 if rounds_won[0] > rounds_won[1] else 1
+			banner = "GANA %s" % fighters[ganador].stats.display_name.to_upper()
+			if ganador == 0:
+				# Vencer a un escritor abre su ficha en la Biblioteca
+				# (PLAN.md §6): la literatura se gana, no se sirve de entrada.
+				Progreso.desbloquear(String(fighters[1].stats.id))
 			_set_round_state(RoundState.MATCH_END)
 		else:
 			_start_round(round_number + 1)
@@ -528,6 +533,8 @@ func _handle_dev_keys() -> void:
 		training.enabled = not training.enabled
 	if Input.is_action_just_pressed(&"dev_quick_reset"):
 		reset_instantaneo()
+	if Input.is_action_just_pressed(&"ui_cancel"):
+		get_tree().change_scene_to_file("res://scenes/main_menu.tscn")
 
 
 ## Vuelve a la posición de salida sin cuenta atrás ni cambio de ronda. Es la

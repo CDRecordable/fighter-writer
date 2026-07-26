@@ -64,6 +64,25 @@ Ejecuta cada golpe contra el muñeco, mide la ventaja real que deja y aplica la
 regla clásica —**X enlaza con Y si la ventaja al golpear de X es mayor o igual
 que el startup de Y**— para listar qué combos permiten los números actuales.
 
+El juego arranca en un **menú** con dos mitades: `COMBATE` y `BIBLIOTECA`.
+Desde el combate, `Esc` vuelve al menú.
+
+## La Biblioteca
+
+La mitad del juego que no se pelea (PLAN.md §6). Cada escritor tiene su ficha
+—retrato, obra, premios, curiosidades, cita y **por qué sus golpes se llaman
+como se llaman**— en el `wiki.json` de su propia carpeta, junto a sus frame data.
+
+La regla que la sostiene: **vencer a un escritor abre su ficha completa**. Antes
+solo se ve el nombre y una línea, como los perfiles del manual de SF2. La
+literatura no se sirve de entrada, se gana.
+
+Controles: `←→` cambia de escritor, `↑↓` desplaza la ficha, `Esc` vuelve.
+`F9` desbloquea todo (utilidad de desarrollo, para leer las fichas sin tener que
+ganar cada vez).
+
+El progreso se guarda en `user://progreso.cfg`.
+
 ## Personajes
 
 **Cristina Morales** (jugable) contra **Pérez-Reverte** (rival). Ella corre y
