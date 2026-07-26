@@ -44,6 +44,10 @@ var _contact_point := Vector2.ZERO
 var stage_half_width: int = STAGE_HALF_WIDTH
 var floor_screen_y: int = FLOOR_SCREEN_Y
 var hud: CanvasLayer = null
+## Pantalla de resultado, superpuesta al combate congelado. Mientras exista,
+## manda ella: se traga el input para que las teclas del combate no respondan
+## por detrás.
+var resultado: PantallaResultado = null
 var camera: Camera2D = null
 var dummy: Agents.Dummy = null
 
@@ -252,15 +256,46 @@ func _tick_ko() -> void:
 	_clamp_to_stage()
 	if round_state_frame >= KO_TICKS:
 		if rounds_won[0] >= ROUNDS_TO_WIN or rounds_won[1] >= ROUNDS_TO_WIN:
-			var ganador := 0 if rounds_won[0] > rounds_won[1] else 1
-			banner = "GANA %s" % fighters[ganador].stats.display_name.to_upper()
-			if ganador == 0:
-				# Vencer a un escritor abre su ficha en la Biblioteca
-				# (PLAN.md §6): la literatura se gana, no se sirve de entrada.
-				Progreso.desbloquear(String(fighters[1].stats.id))
-			_set_round_state(RoundState.MATCH_END)
+			_terminar_combate()
 		else:
 			_start_round(round_number + 1)
+
+
+func _terminar_combate() -> void:
+	var ganador := 0 if rounds_won[0] > rounds_won[1] else 1
+	banner = ""
+	_set_round_state(RoundState.MATCH_END)
+
+	var rival_id := String(fighters[1].stats.id)
+	var desbloqueada := false
+	if ganador == 0:
+		# Vencer a un escritor abre su ficha en la Biblioteca (PLAN.md §6): la
+		# literatura se gana, no se sirve de entrada.
+		desbloqueada = not Progreso.esta_desbloqueado(rival_id)
+		Progreso.desbloquear(rival_id)
+
+	resultado = PantallaResultado.new()
+	resultado.ganador = fighters[ganador].stats.display_name
+	resultado.perdedor = fighters[1 - ganador].stats.display_name
+	resultado.gano_el_jugador = ganador == 0
+	resultado.rondas = [rounds_won[ganador], rounds_won[1 - ganador]]
+	resultado.vida_restante = fighters[ganador].health_ratio()
+	resultado.ficha_desbloqueada = desbloqueada
+	resultado.revancha.connect(_revancha)
+	resultado.ir_a.connect(_ir_a)
+	hud.add_child(resultado)
+
+
+func _revancha() -> void:
+	if resultado != null:
+		resultado.queue_free()
+		resultado = null
+	rounds_won = [0, 0]
+	_start_round(1)
+
+
+func _ir_a(escena: String) -> void:
+	get_tree().change_scene_to_file(escena)
 
 
 # --- Reglas del combate ------------------------------------------------------
@@ -513,6 +548,11 @@ func _update_camera() -> void:
 
 
 func _handle_dev_keys() -> void:
+	# Con la pantalla de resultado delante manda ella. Las teclas de desarrollo
+	# se leen del estado del teclado, así que `set_input_as_handled()` no las
+	# frena: hay que apartarse aquí.
+	if resultado != null:
+		return
 	if Input.is_action_just_pressed(&"dev_toggle_boxes"):
 		show_boxes = not show_boxes
 		for fighter in fighters:

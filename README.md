@@ -72,6 +72,12 @@ código. Desde el combate, `Esc` vuelve al menú.
 El jugador 2 lo lleva la IA, pero elegir también su personaje cuesta lo mismo y
 deja medio hecho el VS local del backlog (PLAN.md §11).
 
+Al acabar el combate sale la **pantalla de resultado**: quién ganó, con qué
+marcador, el rango literario que te has llevado (de *Becario de suplemento
+cultural* a *Premio Nacional*) y —si has ganado— el aviso de que su ficha ya está
+abierta, con la opción de ir a leerla. Ese es el bucle del juego: pelear para
+leer.
+
 ## La Biblioteca
 
 La mitad del juego que no se pelea (PLAN.md §6). Cada escritor tiene su ficha
