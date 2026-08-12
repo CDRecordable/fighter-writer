@@ -47,6 +47,7 @@ func _importar(entrada: String, salida: String) -> void:
 	animaciones.sort()
 
 	var frames: Array[Image] = []
+	var manifiesto := {}
 	var indice := 0
 	print("Composición (celda %dx%d, pivote %d,%d):" % [CELL, CELL, PIVOT_X, PIVOT_Y])
 	for anim in animaciones:
@@ -63,6 +64,7 @@ func _importar(entrada: String, salida: String) -> void:
 				continue
 			frames.append(_centrar(img))
 			indice += 1
+		manifiesto[anim] = { "desde": primero, "hasta": indice - 1 }
 		print("  %-24s celdas %d-%d" % [anim, primero, indice - 1])
 
 	if frames.is_empty():
@@ -86,6 +88,15 @@ func _importar(entrada: String, salida: String) -> void:
 		quit(1)
 		return
 	print("Hoja: %s  (%d frames, %dx%d)" % [salida, frames.size(), hoja.get_width(), hoja.get_height()])
+
+	# Manifiesto con el rango de celdas de cada animación, para mapear al
+	# fighter.json sin contar a mano.
+	var ruta_manifiesto := salida.get_basename() + ".manifiesto.json"
+	var archivo_manifiesto := FileAccess.open(ruta_manifiesto, FileAccess.WRITE)
+	if archivo_manifiesto != null:
+		archivo_manifiesto.store_string(JSON.stringify(manifiesto, "  "))
+		archivo_manifiesto.close()
+		print("Manifiesto: ", ruta_manifiesto)
 	quit(0)
 
 
