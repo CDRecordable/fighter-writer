@@ -273,6 +273,22 @@ godot --headless --path . --script res://tools/generar_creditos.gd
 Escribe [CREDITOS.md](CREDITOS.md) y **avisa de los archivos que no declaran
 créditos**, para que un asset no se cuele sin atribución.
 
+### Arte generado con PixelLab
+
+El pipeline del plan (§8) está probado de punta a punta: PixelLab genera la base
+y las animaciones por plantilla, y `tools/importar_pixellab.gd` compone la hoja
+en el formato del juego (re-centra cada frame con los pies en el pivote):
+
+```bash
+godot --headless --path . --script res://tools/importar_pixellab.gd -- <carpeta_frames> <salida.png>
+```
+
+**Licencia verificada** (términos leídos el 2026-08-12, https://pixellab.ai/termsofservice):
+lo generado es propiedad de quien lo genera, con uso comercial permitido sin
+pedir permiso (§1.3 y §3.3 de sus términos). La única restricción es no entrenar
+modelos propios con las imágenes (§1.2). Puede ir en este repositorio y en un
+juego de pago. Esto cierra el riesgo §10.4 del plan.
+
 ### Arte que no puede ir en el repositorio
 
 Varias licencias buenas (CC-BY de itch.io, OGA-BY) permiten usar el arte en el
