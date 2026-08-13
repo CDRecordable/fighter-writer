@@ -40,7 +40,8 @@
     "air": { "frames": [21, 22, 23, 24, 25, 26, 27, 28], "hold": 5 },
     "landing": { "frames": [20], "hold": 1 },
     "hitstun": { "frames": [29, 30, 31, 32, 33, 34], "hold": 3 },
-    "blockstun": { "frames": [29], "hold": 1 },
+    "blockstun": { "frames": [113, 114, 115], "hold": 2 },
+    "_nota_blockstun_low": "El bloqueo agachado sigue con la pose de agachada: la guardia generada es de pie y a la altura equivocada engañaría sobre la hurtbox. Guardia agachada propia = tarea de arte.",
     "blockstun_low": { "frames": [20], "hold": 1 },
     "ko": { "frames": [35, 36, 37, 38, 39, 40, 41], "hold": 4 }
   },

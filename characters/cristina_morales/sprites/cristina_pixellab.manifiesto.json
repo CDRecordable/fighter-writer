@@ -70,5 +70,9 @@
   "18_combatientes": {
     "desde": 104,
     "hasta": 112
+  },
+  "19_guardia": {
+    "desde": 113,
+    "hasta": 117
   }
 }
