@@ -21,6 +21,12 @@ class Layer:
 	var x: int = 0  ## px, desplazamiento horizontal en el mundo
 	var y: int = 0  ## px sobre el suelo donde se apoya el BORDE INFERIOR
 	var repeat_x: bool = false
+	## Repetición en espejo. Existe por el arte generado: una imagen de IA no
+	## repite sin costura, pero pegada a su propio espejo repite siempre, por
+	## construcción. Se resuelve AL CARGAR duplicando la textura (original +
+	## espejo) y tratándola como repetición normal — dibujar con anchos
+	## negativos no es fiable en el canvas de Godot.
+	var repeat_mirror: bool = false
 	## Tinte multiplicativo. Es la herramienta para meter arte de terceros sin
 	## editar el PNG: baja el contraste de una capa que canta o la mete en la
 	## paleta del escenario. En un juego de lucha el fondo NUNCA debe competir
@@ -89,12 +95,17 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 		layer.x = int(entry.get("x", 0))
 		layer.y = int(entry.get("y", 0))
 		layer.repeat_x = bool(entry.get("repeat_x", false))
+		layer.repeat_mirror = bool(entry.get("repeat_mirror", false))
+		if layer.repeat_mirror:
+			layer.repeat_x = true
 		layer.tint = Color(String(entry.get("tint", "#ffffff")))
 		layer.frames = maxi(1, int(entry.get("frames", 1)))
 		layer.hold = maxi(1, int(entry.get("hold", 8)))
 		var image_path := "%s/%s/%s" % [ROOT, stage_id, String(entry.get("image", ""))]
 		if ResourceLoader.exists(image_path):
 			layer.texture = load(image_path)
+			if layer.repeat_mirror:
+				layer.texture = _doblar_en_espejo(layer.texture)
 			stage.layers.append(layer)
 		else:
 			push_warning("StageData: falta la capa %s" % image_path)
@@ -103,3 +114,21 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 		if raw is Dictionary:
 			stage.credits.append(raw)
 	return stage
+
+
+static func _doblar_en_espejo(texture: Texture2D) -> Texture2D:
+	var original := texture.get_image()
+	if original == null:
+		return texture
+	original.decompress()
+	var espejo := original.duplicate()
+	espejo.flip_x()
+	var doble := Image.create_empty(
+		original.get_width() * 2, original.get_height(), false, Image.FORMAT_RGBA8
+	)
+	if original.get_format() != Image.FORMAT_RGBA8:
+		original.convert(Image.FORMAT_RGBA8)
+		espejo.convert(Image.FORMAT_RGBA8)
+	doble.blit_rect(original, Rect2i(Vector2i.ZERO, original.get_size()), Vector2i.ZERO)
+	doble.blit_rect(espejo, Rect2i(Vector2i.ZERO, espejo.get_size()), Vector2i(original.get_width(), 0))
+	return ImageTexture.create_from_image(doble)

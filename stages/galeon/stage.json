@@ -10,21 +10,23 @@
   "floor_screen_y": 96,
   "sky_color": "#16233c",
 
+  "_comentario_arte": "Capas generadas con PixelLab (create_image_pixflux, 1 generación cada una) salvo el mar CC0 de POKOMOKO. Las capas anchas usan repeat_mirror: una imagen generada no repite sin costura, pero espejada contra sí misma repite siempre, por construcción.",
+
   "layers": [
     {
-      "_nota": "Las alturas están calculadas para que se vea el mar POR ENCIMA de la regala de la cubierta, que llega a 60 px del suelo. Si se cambia el alto de cubierta.png hay que recolocar el mar o desaparece detrás.",
-      "image": "capas/cielo.png",
+      "_nota": "Cielo con atardecer. A parallax 0.08 apenas se desplaza, así que el sol nunca sale de cuadro ni se duplica en pantalla.",
+      "image": "capas/cielo_px.png",
       "parallax": 0.08,
-      "y": 100,
-      "repeat_x": true
+      "y": 46,
+      "repeat_mirror": true
     },
     {
-      "image": "capas/mar_lejos.png",
-      "parallax": 0.3,
-      "y": 80,
-      "repeat_x": true,
-      "frames": 4,
-      "hold": 14
+      "_nota": "Flota en el horizonte, con humo de cañones: el guiño a Trafalgar. La 'y' la deja asomando justo por encima de la banda del mar (que llega a 110 px del suelo).",
+      "image": "capas/flota_px.png",
+      "parallax": 0.2,
+      "y": 104,
+      "repeat_mirror": true,
+      "tint": "#b9a8c9"
     },
     {
       "_nota": "Mar cercano: tira CC0 de POKOMOKO (ver 'credits'). Es un tile de agua de 64x64 en 4 fotogramas; aquí se usa como banda de superficie vista desde la cubierta.",
@@ -46,19 +48,20 @@
       "hold": 10
     },
     {
-      "image": "capas/mastil.png",
+      "image": "capas/mastil_px.png",
       "parallax": 0.85,
-      "x": -120,
+      "x": -140,
       "y": 0
     },
     {
-      "image": "capas/cubierta.png",
+      "image": "capas/cubierta_px.png",
       "parallax": 1.0,
-      "y": -30,
-      "repeat_x": true
+      "y": -40,
+      "repeat_mirror": true
     },
     {
-      "image": "capas/barril.png",
+      "_nota": "El barril con el móvil que vibra (PLAN.md §5). La tira de 2 frames sale de barril_px.png con tools: el frame 2 desplaza 1 px la zona del móvil.",
+      "image": "capas/barril_px_strip.png",
       "parallax": 1.0,
       "x": 150,
       "y": 0,
@@ -76,6 +79,13 @@
       "licencia": "CC0 1.0 (dominio público)",
       "url": "https://opengameart.org/content/animated-ocean-water-tile",
       "cambios": "ninguno; se usa la tira tal cual como capa de mar cercano"
+    },
+    {
+      "obra": "Capas del galeón: cielo, cubierta, flota, mástil y barril",
+      "autor": "Generadas con PixelLab bajo dirección del equipo",
+      "licencia": "Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12)",
+      "url": "https://pixellab.ai/termsofservice",
+      "cambios": "El barril se convirtió en tira de 2 frames (vibración del móvil); el mástil se generó por img2img sobre la composición propia"
     }
   ]
 }

@@ -8,6 +8,9 @@
 - **Animated Ocean Water Tile** — POKOMOKO · CC0 1.0 (dominio público) · [origen](https://opengameart.org/content/animated-ocean-water-tile)
   - Modificaciones: ninguno; se usa la tira tal cual como capa de mar cercano
   - Usado en: `res://stages/galeon/stage.json`
+- **Capas del galeón: cielo, cubierta, flota, mástil y barril** — Generadas con PixelLab bajo dirección del equipo · Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12) · [origen](https://pixellab.ai/termsofservice)
+  - Modificaciones: El barril se convirtió en tira de 2 frames (vibración del móvil); el mástil se generó por img2img sobre la composición propia
+  - Usado en: `res://stages/galeon/stage.json`
 - **Hoja de sprites de Cristina Morales (base + 15 animaciones)** — Generada con PixelLab bajo dirección del equipo · Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12) · [origen](https://pixellab.ai/termsofservice)
   - Modificaciones: Compuesta y re-centrada con tools/importar_pixellab.gd; pendiente de remate manual en Aseprite
   - Usado en: `res://characters/cristina_morales/fighter.json`
