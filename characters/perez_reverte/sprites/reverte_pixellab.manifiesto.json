@@ -58,5 +58,17 @@
   "15_levantarse": {
     "desde": 92,
     "hasta": 96
+  },
+  "16_estocada": {
+    "desde": 97,
+    "hasta": 105
+  },
+  "17_jab_agachado": {
+    "desde": 106,
+    "hasta": 110
+  },
+  "18_trafalgar": {
+    "desde": 111,
+    "hasta": 117
   }
 }

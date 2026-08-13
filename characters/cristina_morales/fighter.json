@@ -22,7 +22,7 @@
 
   "_comentario_sprites": "El pivote es el punto de la celda que se apoya en los pies del personaje. Todo el arte se dibuja MIRANDO A LA DERECHA; el motor voltea solo. Si falta la hoja, el luchador se dibuja como el rectángulo del prototipo gris y el juego funciona igual.",
 
-  "_comentario_hoja": "Hoja generada con PixelLab (base + 15 plantillas, 16 generaciones) y compuesta con tools/importar_pixellab.gd. El manifiesto de celdas está en sprites/cristina_pixellab.manifiesto.json. Tres préstamos provisionales, pendientes de arte propio: el jab agachado reutiliza el jab de pie, la Asamblea una pose de encaje, y el súper los frames de la Danza.",
+  "_comentario_hoja": "Hoja generada con PixelLab (base + 15 plantillas + 3 animaciones v3 a medida) y compuesta con tools/importar_pixellab.gd. El manifiesto de celdas está en sprites/cristina_pixellab.manifiesto.json. Ya no quedan préstamos: cada movimiento tiene su animación propia.",
 
   "sprites": {
     "sheet": "sprites/cristina_pixellab.png",
@@ -158,8 +158,7 @@
 
     "crouch_lp": {
       "display_name": "Jab agachado",
-      "_nota_anim": "Préstamo: no hay plantilla de puñetazo agachado; reutiliza el jab de pie hasta tener arte propio.",
-      "anim": { "frames": [42, 43, 44], "holds": [3, 3, 6] },
+      "anim": { "frames": [99, 100, 101, 102, 103], "holds": [2, 2, 2, 3, 3] },
       "stance": "crouch",
       "height": "mid",
       "damage": 22,
@@ -339,8 +338,7 @@
 
     "asamblea": {
       "display_name": "Asamblea",
-      "_nota_anim": "Préstamo: pose de encaje sostenida como postura de absorción, hasta tener arte propio de la Asamblea.",
-      "anim": { "frames": [30], "holds": [31] },
+      "anim": { "frames": [94, 95, 96, 97, 98], "holds": [3, 7, 7, 7, 7] },
       "stance": "stand",
       "motion": "214",
       "button": "p",
@@ -385,8 +383,7 @@
 
     "super_combatientes": {
       "display_name": "Los Combatientes",
-      "_nota_anim": "Préstamo: reutiliza los frames de la Danza (hurricane-kick) hasta tener arte propio del súper.",
-      "anim": { "frames": [78, 79, 80, 81], "holds": [6, 16, 16, 24] },
+      "anim": { "frames": [104, 105, 106, 107, 108, 109, 110, 111, 112], "holds": [6, 7, 7, 7, 7, 7, 7, 7, 7] },
       "stance": "stand",
       "motion": "236236",
       "button": "p",

@@ -58,5 +58,17 @@
   "15_levantarse": {
     "desde": 89,
     "hasta": 93
+  },
+  "16_asamblea": {
+    "desde": 94,
+    "hasta": 98
+  },
+  "17_jab_agachado": {
+    "desde": 99,
+    "hasta": 103
+  },
+  "18_combatientes": {
+    "desde": 104,
+    "hasta": 112
   }
 }
