@@ -1,0 +1,62 @@
+{
+  "01_idle": {
+    "desde": 0,
+    "hasta": 7
+  },
+  "02_andar": {
+    "desde": 8,
+    "hasta": 15
+  },
+  "03_agachado": {
+    "desde": 16,
+    "hasta": 20
+  },
+  "04_salto": {
+    "desde": 21,
+    "hasta": 28
+  },
+  "05_recibir": {
+    "desde": 29,
+    "hasta": 34
+  },
+  "06_ko": {
+    "desde": 35,
+    "hasta": 41
+  },
+  "07_jab": {
+    "desde": 42,
+    "hasta": 44
+  },
+  "08_directo": {
+    "desde": 45,
+    "hasta": 50
+  },
+  "09_puntera": {
+    "desde": 51,
+    "hasta": 57
+  },
+  "10_patada": {
+    "desde": 58,
+    "hasta": 64
+  },
+  "11_barrido": {
+    "desde": 65,
+    "hasta": 71
+  },
+  "12_aerea": {
+    "desde": 72,
+    "hasta": 77
+  },
+  "13_tuit": {
+    "desde": 78,
+    "hasta": 84
+  },
+  "14_limpia": {
+    "desde": 85,
+    "hasta": 91
+  },
+  "15_levantarse": {
+    "desde": 92,
+    "hasta": 96
+  }
+}
