@@ -16,14 +16,27 @@ class Agent extends RefCounted:
 		return FighterInput.new()
 
 
-## Lee el teclado/mando de un jugador a través del InputMap (ver input_setup.gd).
+## Lee teclado (por InputMap) y mando (directo) de un jugador.
+##
+## El mando NO pasa por el InputMap a propósito. Las acciones del InputMap
+## mezclan todos los dispositivos, y un dispositivo que no es un mando de
+## juego —el caso real: un joystick de vuelo con interruptores mapeados a los
+## índices de la cruceta— puede dejar direcciones "pulsadas" permanentemente y
+## anular el teclado. Aquí solo se escuchan los mandos que Godot reconoce como
+## tales (Input.is_joy_known), y el teclado siempre manda si dice algo.
 class Human extends Agent:
+	const DEADZONE := 0.35
+
 	var prefix: String
+	## 0 = primer mando reconocido, 1 = segundo. No es el índice de dispositivo:
+	## si hay un volante o un stick de vuelo por medio, se salta.
+	var pad_slot: int
 	var _snapshot := FighterInput.new()
 	var _previous_buttons: int = 0
 
 	func _init(player_index: int) -> void:
 		prefix = "p%d_" % player_index
+		pad_slot = player_index - 1
 
 	func poll(_fighter: Node) -> FighterInput:
 		var dir_x := 0
@@ -49,6 +62,33 @@ class Human extends Agent:
 		if Input.is_action_pressed(prefix + "special"):
 			buttons |= FighterInput.BTN_SPECIAL
 
+		var device := _pad_device()
+		if device >= 0:
+			# El teclado tiene prioridad: el mando solo aporta donde el
+			# teclado calla. Evita que un stick con deriva pise a las teclas.
+			if dir_x == 0:
+				var eje_x := Input.get_joy_axis(device, JOY_AXIS_LEFT_X)
+				if eje_x > DEADZONE or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_RIGHT):
+					dir_x = 1
+				elif eje_x < -DEADZONE or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_LEFT):
+					dir_x = -1
+			if dir_y == 0:
+				var eje_y := Input.get_joy_axis(device, JOY_AXIS_LEFT_Y)
+				if eje_y < -DEADZONE or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_UP):
+					dir_y = 1
+				elif eje_y > DEADZONE or Input.is_joy_button_pressed(device, JOY_BUTTON_DPAD_DOWN):
+					dir_y = -1
+			if Input.is_joy_button_pressed(device, JOY_BUTTON_X):
+				buttons |= FighterInput.BTN_LP
+			if Input.is_joy_button_pressed(device, JOY_BUTTON_Y):
+				buttons |= FighterInput.BTN_HP
+			if Input.is_joy_button_pressed(device, JOY_BUTTON_A):
+				buttons |= FighterInput.BTN_LK
+			if Input.is_joy_button_pressed(device, JOY_BUTTON_B):
+				buttons |= FighterInput.BTN_HK
+			if Input.is_joy_button_pressed(device, JOY_BUTTON_RIGHT_SHOULDER):
+				buttons |= FighterInput.BTN_SPECIAL
+
 		_snapshot.dir_x = dir_x
 		_snapshot.dir_y = dir_y
 		_snapshot.buttons = buttons
@@ -58,6 +98,17 @@ class Human extends Agent:
 		_snapshot.pressed = buttons & ~_previous_buttons
 		_previous_buttons = buttons
 		return _snapshot
+
+	## El enésimo mando RECONOCIDO como mando de juego, o -1 si no hay.
+	func _pad_device() -> int:
+		var indice := 0
+		for id in Input.get_connected_joypads():
+			if not Input.is_joy_known(id):
+				continue
+			if indice == pad_slot:
+				return id
+			indice += 1
+		return -1
 
 
 ## La "IA tonta" que pide la Fase 1: sirve para probar el combate en solitario,

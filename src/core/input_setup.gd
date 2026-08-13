@@ -15,6 +15,14 @@ extends Node
 
 const PLAYERS := 2
 
+## SOLO TECLADO. Los mandos no pasan por el InputMap a propósito: se leen
+## directamente en Agents.Human, filtrando con Input.is_joy_known() los
+## dispositivos que no son mandos de juego. Motivo real, no teórico: un
+## joystick de vuelo (Saitek X-56) conectado como dispositivo 0 reportaba
+## "izquierda" y "derecha" pulsadas a la vez de forma permanente —sus
+## interruptores mapean a los índices de la cruceta— y como las acciones del
+## InputMap mezclan todos los dispositivos, anulaba el teclado: +1-1 = 0 y el
+## personaje no se movía en horizontal.
 const KEYS := {
 	1: {
 		"left": KEY_A, "right": KEY_D, "up": KEY_W, "down": KEY_S,
@@ -28,34 +36,14 @@ const KEYS := {
 	},
 }
 
-const PAD_BUTTONS := {
-	"lp": JOY_BUTTON_X, "hp": JOY_BUTTON_Y,
-	"lk": JOY_BUTTON_A, "hk": JOY_BUTTON_B,
-	"special": JOY_BUTTON_RIGHT_SHOULDER,
-}
-
-const PAD_DPAD := {
-	"left": JOY_BUTTON_DPAD_LEFT, "right": JOY_BUTTON_DPAD_RIGHT,
-	"up": JOY_BUTTON_DPAD_UP, "down": JOY_BUTTON_DPAD_DOWN,
-}
-
 
 func _enter_tree() -> void:
 	for player in range(1, PLAYERS + 1):
 		var prefix := "p%d_" % player
-		var device := player - 1
 		for action_suffix: String in KEYS[player].keys():
 			var action := StringName(prefix + action_suffix)
 			_ensure_action(action)
 			_add_key(action, KEYS[player][action_suffix])
-		for action_suffix: String in PAD_DPAD.keys():
-			_add_pad_button(StringName(prefix + action_suffix), device, PAD_DPAD[action_suffix])
-		for action_suffix: String in PAD_BUTTONS.keys():
-			_add_pad_button(StringName(prefix + action_suffix), device, PAD_BUTTONS[action_suffix])
-		_add_pad_axis(StringName(prefix + "left"), device, JOY_AXIS_LEFT_X, -1.0)
-		_add_pad_axis(StringName(prefix + "right"), device, JOY_AXIS_LEFT_X, 1.0)
-		_add_pad_axis(StringName(prefix + "up"), device, JOY_AXIS_LEFT_Y, -1.0)
-		_add_pad_axis(StringName(prefix + "down"), device, JOY_AXIS_LEFT_Y, 1.0)
 
 	# Utilidades de desarrollo. Se quitan (o se esconden) antes de publicar.
 	_ensure_action(&"dev_toggle_boxes")
@@ -83,21 +71,4 @@ func _add_key(action: StringName, keycode: Key) -> void:
 	_ensure_action(action)
 	var ev := InputEventKey.new()
 	ev.physical_keycode = keycode
-	InputMap.action_add_event(action, ev)
-
-
-func _add_pad_button(action: StringName, device: int, button: JoyButton) -> void:
-	_ensure_action(action)
-	var ev := InputEventJoypadButton.new()
-	ev.device = device
-	ev.button_index = button
-	InputMap.action_add_event(action, ev)
-
-
-func _add_pad_axis(action: StringName, device: int, axis: JoyAxis, value: float) -> void:
-	_ensure_action(action)
-	var ev := InputEventJoypadMotion.new()
-	ev.device = device
-	ev.axis = axis
-	ev.axis_value = value
 	InputMap.action_add_event(action, ev)
