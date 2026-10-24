@@ -79,6 +79,8 @@ func _run_all() -> void:
 	_test_contador_de_combo()
 	_test_reinicio_instantaneo()
 
+	_test_fuente_cubre_los_textos()
+
 	print("")
 	if failures.is_empty():
 		print("OK — todas las pruebas pasan")
@@ -91,6 +93,40 @@ func _run_all() -> void:
 
 
 # --- Pruebas -----------------------------------------------------------------
+
+func _test_fuente_cubre_los_textos() -> void:
+	# La fuente pixel está hecha a mano (assets/fuente/tinta.txt): un carácter
+	# que no esté dibujado sale como un cuadro vacío. Se revisa todo lo que el
+	# juego escribe en pantalla: los JSON de escritores y escenarios y las
+	# cadenas de las pantallas y el HUD.
+	var fuente := FuentePixel.cargar()
+	var textos := PackedStringArray()
+	for id in CharacterLoader.list_ids():
+		for archivo in ["fighter.json", "wiki.json"]:
+			var ruta := "res://characters/%s/%s" % [id, archivo]
+			if FileAccess.file_exists(ruta):
+				textos.append(FileAccess.get_file_as_string(ruta))
+	var cadena := RegEx.create_from_string("\"((?:[^\"\\]|\\.)*)\"")
+	for ruta in [
+		"res://src/ui/main_menu.gd", "res://src/ui/seleccion.gd",
+		"res://src/ui/resultado.gd", "res://src/ui/biblioteca.gd",
+		"res://src/combat/combat_hud.gd", "res://src/combat/combat_arena.gd",
+		"res://src/combat/training.gd",
+	]:
+		for m in cadena.search_all(FileAccess.get_file_as_string(ruta)):
+			textos.append(m.get_string(1))
+	var faltan := {}
+	for texto in textos:
+		for i in texto.length():
+			var c := texto.unicode_at(i)
+			if c < 32 or c == 92:
+				continue
+			if not fuente.has_char(c):
+				faltan[String.chr(c)] = true
+	_check("la fuente pixel tiene todos los caracteres que se escriben%s" % (
+		"" if faltan.is_empty() else " (faltan: %s)" % " ".join(PackedStringArray(faltan.keys()))
+	), faltan.is_empty())
+
 
 func _test_golpe_conecta() -> void:
 	var arena := _make_arena()

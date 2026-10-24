@@ -13,14 +13,13 @@ extends Control
 
 const MENU := "res://scenes/main_menu.tscn"
 
-const FONDO := Color(0.09, 0.07, 0.13)
-const PANEL := Color(0.14, 0.11, 0.19)
-const TEXTO := Color(0.90, 0.88, 0.85)
-const TENUE := Color(0.58, 0.55, 0.64)
-const ACENTO := Color(0.95, 0.83, 0.25)
-const BLOQUEADO := Color(0.45, 0.42, 0.50)
+const TEXTO := EstiloTinta.PAPEL
+const TENUE := EstiloTinta.PAPEL_TENUE
+const ACENTO := EstiloTinta.DORADO
+const BLOQUEADO := Color("6e6278")
 
-const ANCHO_LISTA := 116.0
+const ANCHO_LISTA := 150.0
+const MARGEN := 12.0
 const VELOCIDAD_SCROLL := 3
 
 var _ids: PackedStringArray = PackedStringArray()
@@ -40,41 +39,56 @@ func _ready() -> void:
 
 
 func _construir() -> void:
-	var fondo := ColorRect.new()
-	fondo.color = FONDO
-	fondo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	fondo.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(fondo)
+	# get_viewport_rect() y no size: en _ready() el Control aún no tiene su
+	# tamaño resuelto, pero la vista sí.
+	var vista := get_viewport_rect().size
 
-	add_child(_etiqueta("BIBLIOTECA", 12, ACENTO, Vector2(8, 4), 200.0))
-	# 480 fijo y no size.x: en _ready() el Control aún no tiene tamaño resuelto,
-	# y la resolución interna del juego no cambia (project.godot).
+	# El galeón muy apagado detrás: la Biblioteca es parte del mismo juego,
+	# no una pantalla de configuración.
+	var diorama := Diorama.new()
+	diorama.penumbra = 0.82
+	diorama.paseo = 20.0
+	add_child(diorama)
+
+	var titulo := Control.new()
+	titulo.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	titulo.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	add_child(titulo)
+	titulo.draw.connect(func() -> void:
+		EstiloTinta.rotulo(titulo, Vector2(MARGEN, 28), "BIBLIOTECA", 16, ACENTO, HORIZONTAL_ALIGNMENT_LEFT)
+	)
 	add_child(_etiqueta(
 		"←→ escritor   ↑↓ leer   Esc volver",
-		7, TENUE, Vector2(480.0 - 184.0, 7), 176.0, HORIZONTAL_ALIGNMENT_RIGHT
+		8, TENUE, Vector2(vista.x - 260.0 - MARGEN, 14), 260.0, HORIZONTAL_ALIGNMENT_RIGHT
 	))
 
 	_lista = VBoxContainer.new()
-	_lista.position = Vector2(8, 24)
+	_lista.position = Vector2(MARGEN, 44)
 	_lista.custom_minimum_size = Vector2(ANCHO_LISTA, 0)
-	_lista.add_theme_constant_override("separation", 3)
+	_lista.add_theme_constant_override("separation", 4)
 	add_child(_lista)
 
-	var marco := ColorRect.new()
-	marco.color = PANEL
-	marco.position = Vector2(ANCHO_LISTA + 14.0, 22)
-	marco.size = Vector2(480.0 - ANCHO_LISTA - 22.0, 240.0)
+	var caja := Rect2(
+		MARGEN + ANCHO_LISTA + 10.0, 40.0,
+		vista.x - ANCHO_LISTA - MARGEN * 2.0 - 10.0, vista.y - 40.0 - MARGEN
+	)
+	var marco := Control.new()
 	marco.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	marco.position = caja.position
+	marco.size = caja.size
 	add_child(marco)
+	marco.draw.connect(func() -> void:
+		EstiloTinta.marco(marco, Rect2(Vector2.ZERO, caja.size), Color(EstiloTinta.FONDO_PANEL, 0.94))
+	)
 
 	_scroll = ScrollContainer.new()
-	_scroll.position = marco.position + Vector2(5, 4)
-	_scroll.size = marco.size - Vector2(10, 8)
+	_scroll.position = caja.position + Vector2(10, 8)
+	_scroll.size = caja.size - Vector2(16, 14)
 	_scroll.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
 	add_child(_scroll)
 
 	_contenido = VBoxContainer.new()
-	_contenido.custom_minimum_size = Vector2(_scroll.size.x - 4.0, 0)
+	_contenido.custom_minimum_size = Vector2(_scroll.size.x - 10.0, 0)
 	_contenido.add_theme_constant_override("separation", 3)
 	_scroll.add_child(_contenido)
 
@@ -150,7 +164,7 @@ func _refrescar_ficha() -> void:
 	if entry.epigrafe != "":
 		_agregar(entry.epigrafe, 8, ACENTO)
 	if entry.lugar_y_anio() != "":
-		_agregar(entry.lugar_y_anio(), 7, TENUE)
+		_agregar(entry.lugar_y_anio(), 8, TENUE)
 
 	if not Progreso.esta_desbloqueado(id):
 		_separador()
@@ -164,13 +178,13 @@ func _refrescar_ficha() -> void:
 
 	if entry.borrador:
 		_separador()
-		_agregar("⚠ Ficha en borrador: pendiente de verificar por el equipo.", 7, ACENTO)
+		_agregar("⚠ Ficha en borrador: pendiente de verificar por el equipo.", 8, ACENTO)
 
 	if not entry.bibliografia.is_empty():
 		_seccion("OBRA")
 		for libro: Dictionary in entry.bibliografia:
 			_agregar("%s  (%d)" % [String(libro.get("titulo", "")), int(libro.get("anio", 0))], 8, TEXTO)
-			_agregar("   %s" % String(libro.get("por_que", "")), 7, TENUE)
+			_agregar("   %s" % String(libro.get("por_que", "")), 8, TENUE)
 
 	if not entry.premios.is_empty():
 		_seccion("PREMIOS")
@@ -179,24 +193,24 @@ func _refrescar_ficha() -> void:
 			var obra := String(premio.get("obra", ""))
 			if obra != "" and obra != "—":
 				linea += " — por %s" % obra
-			_agregar(linea, 7, TEXTO)
+			_agregar(linea, 8, TEXTO)
 
 	if not entry.curiosidades.is_empty():
 		_seccion("CURIOSIDADES")
 		for dato in entry.curiosidades:
-			_agregar("· %s" % dato, 7, TEXTO)
+			_agregar("· %s" % dato, 8, TEXTO)
 
 	_seccion("POR QUÉ SUS GOLPES SE LLAMAN ASÍ")
 	for mov: Dictionary in entry.moveset:
 		_agregar(String(mov.get("movimiento", "")), 8, ACENTO)
-		_agregar("   %s" % String(mov.get("por_que", "")), 7, TEXTO)
+		_agregar("   %s" % String(mov.get("por_que", "")), 8, TEXTO)
 
 	_seccion("CITA")
 	if entry.cita_texto != "":
 		_agregar("«%s»" % entry.cita_texto, 8, TEXTO)
-		_agregar("   %s" % entry.cita_fuente, 7, TENUE)
+		_agregar("   %s" % entry.cita_fuente, 8, TENUE)
 	else:
-		_agregar("Pendiente de elegir. " + entry.cita_fuente, 7, TENUE)
+		_agregar("Pendiente de elegir. " + entry.cita_fuente, 8, TENUE)
 
 
 ## Retrato. Mientras no exista el dibujo definitivo se usa la pose de reposo de
@@ -209,11 +223,16 @@ func _agregar_retrato(character_id: String) -> void:
 	var retrato := TextureRect.new()
 	var atlas := AtlasTexture.new()
 	atlas.atlas = stats.sprites.texture
-	atlas.region = stats.sprites.region(0)
+	# Recorte del cuerpo a tamaño real, sin escalar: escalar 128 px a 74
+	# (como se hacía) deforma los píxeles.
+	var celda := stats.sprites.region(0)
+	atlas.region = Rect2(
+		celda.position.x + float(stats.sprites.pivot_x) - 40.0,
+		celda.position.y + float(stats.sprites.pivot_y) - 88.0,
+		80.0, 92.0
+	)
 	retrato.texture = atlas
-	retrato.custom_minimum_size = Vector2(74, 74)
-	retrato.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
-	retrato.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	retrato.stretch_mode = TextureRect.STRETCH_KEEP_CENTERED
 	_contenido.add_child(retrato)
 
 

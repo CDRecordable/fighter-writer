@@ -55,7 +55,7 @@ Añadir a Cela, o publicar un DLC de Lorca, es añadir un directorio.
 - `x` crece **hacia delante** según el facing → una caja se escribe una vez y
   vale mirando a los dos lados.
 - `y` crece **hacia arriba** desde el suelo.
-- Píxeles enteros de la resolución interna (480×270).
+- Píxeles enteros de la resolución interna (640×360).
 
 Por qué JSON y no `.tres`: se lee y se diffea en Git, el artista puede tocarlo
 sin abrir Godot, y no arrastra dependencias del motor cuando la wiki se use fuera
@@ -178,7 +178,7 @@ antes de que el artista dibuje nada.**
 
 ## 10. Los efectos no tocan la simulación
 
-`src/combat/effects.gd` (chispas, polvo) y la sacudida de cámara viven **fuera**
+`src/combat/effects.gd` (tinta, destellos, polvo) y la sacudida de cámara viven **fuera**
 del punto fijo: usan floats, se mueven con el reloj de render y no escriben ni
 una posición, ni un daño, ni un frame del combate. La sacudida desplaza la
 cámara, nunca a los luchadores.
@@ -249,15 +249,47 @@ funciona igual en el juego, en los tests y en un script suelto.
 
 ## 14. Resolución y render
 
-480×270 interno con escalado entero (PLAN.md §7) y filtro *nearest*. Las
-posiciones se redondean al píxel al dibujar (`FP.floor_px`): sin eso el pixel art
-vibra al moverse, que es el defecto más típico de un 2D mal configurado.
+640×360 interno con escalado entero (×2 a 720p, ×3 a 1080p, ×6 a 4K) y filtro
+*nearest*. Las posiciones se redondean al píxel al dibujar (`FP.floor_px`): sin
+eso el pixel art vibra al moverse, que es el defecto más típico de un 2D mal
+configurado.
+
+Empezó en 480×270 (PLAN.md §7) y se subió en el revamp gráfico. Nada del código
+lleva la resolución escrita: `Stage.media_vista()` la lee de `project.godot`, y
+el HUD y las pantallas se colocan respecto a su tamaño. Cambiarla es tocar
+`project.godot` y nada más (y revisar que el escenario cubra la vista nueva).
+
+### El lenguaje visual "Tinta"
+
+Todo lo que no es arte de personaje o escenario habla el mismo idioma, y vive en
+código, no en imágenes:
+
+- **Fuente pixel propia** (`assets/fuente/tinta.txt` → `FuentePixel`): 5×7 con
+  minúsculas, tildes, ñ y ¡¿, dibujada en un archivo de texto y convertida en
+  `FontFile` al arrancar. Sustituye a `ThemeDB.fallback_font`, así que cualquier
+  `Label` o `draw_string` la usa sin enterarse. Se pinta a 1×, 2× o 3×, nunca a
+  escala fraccionaria. Una prueba comprueba que tiene todos los caracteres que
+  el juego escribe.
+- **`EstiloTinta`**: paleta, texto con sombra dura, rótulos con contorno, marcos
+  de imprenta, rombos. Lo usan el HUD y todas las pantallas.
+- **`Diorama`**: el escenario del combate en penumbra, con los escritores en
+  cubierta, como fondo vivo de los menús. Cada escenario nuevo mejora también
+  los menús sin coste.
+- **Luz de borde** (`src/combat/luchador.gdshader`): el atardecer está detrás de
+  los luchadores, así que les llega contraluz en los bordes de la silueta. Mete
+  los sprites en la luz del escenario sin repintarlos.
+- **Efectos de tinta** (`effects.gd`): salpicaduras con puntas y destello de
+  papel; el súper apaga el escenario (`Stage.oscurecer`) y pinta su mancha
+  detrás de quien lo lanza.
+
+Ojo al exportar: `tinta.txt` y los `.json` no son recursos de Godot, así que el
+preset de exportación tiene que incluirlos en el filtro de archivos no recurso
+(`*.txt, *.json`).
 
 ## 15. Lo que es deliberadamente provisional
 
 Esto se tira sin pena cuando llegue su fase:
 
-- `CombatHUD` — dibujado a mano; lo sustituye el marco del artista en la Fase 2.
 - El fondo de la arena (`_draw()` de `combat_arena.gd`) — es el escenario del
   galeón el que va ahí.
 - `Agents.Dummy` — muñeco de pruebas, no un rival.

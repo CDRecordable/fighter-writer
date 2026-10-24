@@ -18,11 +18,13 @@ Controles="*res://src/core/input_setup.gd"
 
 [display]
 
-; Resolución interna 480x270: escala entera x4 a 1080p y x8 a 4K (PLAN.md §7).
-window/size/viewport_width=480
-window/size/viewport_height=270
-window/size/window_width_override=1440
-window/size/window_height_override=810
+; Resolución interna 640x360: escala entera x2 a 720p, x3 a 1080p y x6 a 4K.
+; Era 480x270 (PLAN.md §7); se subió en el revamp gráfico para ganar detalle
+; en personajes y escenario sin que ocupen más pantalla.
+window/size/viewport_width=640
+window/size/viewport_height=360
+window/size/window_width_override=1280
+window/size/window_height_override=720
 window/stretch/mode="viewport"
 window/stretch/aspect="keep"
 window/stretch/scale_mode="integer"

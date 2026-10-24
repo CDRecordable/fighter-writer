@@ -49,6 +49,14 @@ var owner_character: StringName = &""
 var half_width: int = 360
 var floor_screen_y: int = 96
 var sky_color: Color = Color(0.10, 0.07, 0.14)
+## Cielo alto: degradado tramado de `sky_color` (abajo, en `sky_from_y`) a
+## `sky_top_color` (arriba, en `sky_to_y`), con estrellas. Existe porque una
+## imagen de cielo generada nunca es tan alta como la pantalla, y una franja
+## de color plano encima delata el pegote. Alturas en px sobre el suelo.
+var sky_top_color: Color = sky_color
+var sky_from_y: int = 0
+var sky_to_y: int = 0
+var sky_stars: int = 0
 var layers: Array[Layer] = []
 var credits: Array[Dictionary] = []
 
@@ -85,6 +93,14 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 	stage.half_width = int(d.get("half_width", 360))
 	stage.floor_screen_y = int(d.get("floor_screen_y", 96))
 	stage.sky_color = Color(String(d.get("sky_color", "#1a1224")))
+	stage.sky_top_color = stage.sky_color
+	var cielo: Variant = d.get("sky", null)
+	if cielo is Dictionary:
+		stage.sky_color = Color(String(cielo.get("bottom", d.get("sky_color", "#1a1224"))))
+		stage.sky_top_color = Color(String(cielo.get("top", cielo.get("bottom", "#1a1224"))))
+		stage.sky_from_y = int(cielo.get("from_y", 0))
+		stage.sky_to_y = int(cielo.get("to_y", 0))
+		stage.sky_stars = int(cielo.get("stars", 0))
 
 	for raw: Variant in d.get("layers", []):
 		if not (raw is Dictionary):

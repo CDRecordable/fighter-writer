@@ -36,6 +36,9 @@ signal knocked_out
 ## `hard` cuando se cae derribado o sin sentido, no cuando se aterriza de un
 ## salto normal. La arena lo usa para levantar más polvo.
 signal landed(hard: bool)
+## Arranca un súper (un movimiento con congelación). Solo lo escuchan los
+## efectos: el combate ya ha aplicado la congelación al rival.
+signal super_started(freeze_ticks: int)
 
 var stats: FighterStats = null
 var agent: Agents.Agent = null
@@ -90,6 +93,17 @@ var sprite_tint: Color = Color.WHITE
 var _connected_hit_ids: Array[int] = []
 var _stance_box_buffer: Array[BoxData] = []
 var _empty_boxes: Array[BoxData] = []
+
+## Material compartido por todos los luchadores: luz de borde del atardecer.
+## Uno solo para los dos, para no partir el lote de dibujo.
+static var _material: ShaderMaterial = null
+
+
+func _ready() -> void:
+	if _material == null:
+		_material = ShaderMaterial.new()
+		_material.shader = load("res://src/combat/luchador.gdshader")
+	material = _material
 
 
 func setup(stats_in: FighterStats, agent_in: Agents.Agent, index: int) -> void:
@@ -352,6 +366,7 @@ func _start_move(move: MoveData) -> void:
 		meter = maxi(0, meter - move.meter_cost)
 		if opponent != null and move.super_freeze > 0:
 			opponent.hitstop = maxi(opponent.hitstop, move.super_freeze)
+			super_started.emit(move.super_freeze)
 	# Sin esto, la misma pulsación (o la misma media luna, que sigue en el
 	# historial) dispararía el movimiento otra vez al tick siguiente.
 	if move.is_command_move():
@@ -592,6 +607,7 @@ func update_visual() -> void:
 
 
 func _draw() -> void:
+	_draw_sombra()
 	if not _draw_sprite():
 		_draw_gray_box()
 	if show_boxes:
@@ -617,6 +633,14 @@ func _draw_sprite() -> bool:
 	)
 	draw_set_transform(Vector2.ZERO, 0.0, Vector2.ONE)
 	return true
+
+
+## Sombra en el suelo: una elipse de píxeles que encoge y se aclara al
+## saltar. Ancla al luchador al escenario y deja leer la altura de un salto.
+func _draw_sombra() -> void:
+	var altura := FP.floor_px(pos_y)
+	var escala := clampf(1.0 - float(altura) / 140.0, 0.45, 1.0)
+	EstiloTinta.sombra_suelo(self, Vector2(0, altura), 46.0 * escala, 0.55 * escala)
 
 
 func _draw_gray_box() -> void:

@@ -12,36 +12,79 @@ extends Node2D
 ## Así una capa se coloca diciendo "a 40 px del suelo" y no hay que pensar en el
 ## eje invertido de Godot.
 
-const VIEW_HALF_WIDTH := 240
+## Media anchura de la vista, sacada de la resolución interna del proyecto
+## para que cambiarla sea tocar project.godot y nada más.
+static func media_vista() -> int:
+	return int(ProjectSettings.get_setting("display/window/size/viewport_width", 640)) / 2
+
+
+## Paso del tramado del cielo: matriz de Bayer 4x4. Un degradado suave no es
+## pixel art; bandas de color con tramado ordenado sí, y es lo que hacían los
+## cielos de los arcade de los 90.
+const BAYER := [
+	[0, 8, 2, 10],
+	[12, 4, 14, 6],
+	[3, 11, 1, 9],
+	[15, 7, 13, 5],
+]
+const NIVELES_CIELO := 6
+const PARALLAX_CIELO := 0.04
 
 var data: StageData = null
 var camera_x: float = 0.0
 var tick: int = 0
+## El cielo alto generado se dibuja como una capa más, la primera.
+var _cielo: StageData.Layer = null
+## Estrellas que parpadean: [posición en la textura, fase].
+var _titilantes: Array[Vector3i] = []
+## Oscurecimiento de súper: ticks que quedan.
+var _oscuro: int = 0
+const TINTA_SUPER := Color(0.05, 0.02, 0.09)
 
 
 func setup(data_in: StageData) -> void:
 	data = data_in
+	_cielo = _construir_cielo()
 	# Detrás de luchadores y proyectiles, que están en z 0.
 	z_index = -100
 	queue_redraw()
 
 
+## Apaga el escenario durante la congelación de un súper (y un poco más,
+## para que la vuelta de la luz se vea).
+func oscurecer(ticks: int) -> void:
+	_oscuro = maxi(_oscuro, ticks + 10)
+
+
 func advance(camera_x_in: float) -> void:
 	camera_x = camera_x_in
 	tick += 1
+	if _oscuro > 0:
+		_oscuro -= 1
 	queue_redraw()
 
 
 func _draw() -> void:
 	if data == null:
 		return
-	# El cielo cubre siempre la vista entera, se mueva la cámara donde se mueva.
+	var media := float(media_vista())
+	# El cielo cubre siempre la vista entera, se mueva la cámara donde se mueva:
+	# color de arriba en todo, y el de abajo desde donde empieza el degradado.
+	draw_rect(Rect2(camera_x - media, -1000.0, media * 2.0, 1400.0), data.sky_top_color)
 	draw_rect(
-		Rect2(camera_x - VIEW_HALF_WIDTH, -1000.0, VIEW_HALF_WIDTH * 2.0, 1400.0),
+		Rect2(camera_x - media, -float(data.sky_from_y), media * 2.0, 400.0 + data.sky_from_y),
 		data.sky_color
 	)
+	if _cielo != null:
+		_draw_layer(_cielo)
+		_draw_titilantes()
 	for layer in data.layers:
 		_draw_layer(layer)
+	if _oscuro > 0:
+		# Entra de golpe y se retira en los últimos ticks: el súper "apaga" el
+		# escenario y deja a los dos luchadores solos.
+		var fuerza := minf(1.0, float(_oscuro) / 8.0) * 0.78
+		draw_rect(Rect2(camera_x - media, -1000.0, media * 2.0, 1400.0), Color(TINTA_SUPER, fuerza))
 
 
 func _draw_layer(layer: StageData.Layer) -> void:
@@ -68,8 +111,9 @@ func _draw_layer(layer: StageData.Layer) -> void:
 
 	# Capa repetida: se tejen copias hasta cubrir la vista. Se empieza en un
 	# múltiplo exacto del ancho para que no aparezca una costura al moverse.
-	var left := camera_x - VIEW_HALF_WIDTH
-	var right := camera_x + VIEW_HALF_WIDTH
+	var media := float(media_vista())
+	var left := camera_x - media
+	var right := camera_x + media
 	var start := floorf((left - scroll - float(layer.x)) / float(width)) * float(width)
 	var x := start
 	while x + scroll + float(layer.x) < right:
@@ -86,3 +130,66 @@ func _frame_index(layer: StageData.Layer) -> int:
 	if layer.frames <= 1:
 		return 0
 	return (tick / layer.hold) % layer.frames
+
+
+## Textura del cielo alto: degradado tramado más estrellas fijas, con semilla
+## fija para que el cielo sea siempre el mismo.
+func _construir_cielo() -> StageData.Layer:
+	var alto := data.sky_to_y - data.sky_from_y
+	if alto <= 0:
+		return null
+	var ancho := media_vista() * 2
+	var imagen := Image.create_empty(ancho, alto, false, Image.FORMAT_RGBA8)
+	for y in alto:
+		# 0 arriba (color de arriba), NIVELES-1 abajo (color de abajo).
+		var v := float(y) / float(alto - 1) * float(NIVELES_CIELO - 1)
+		var base := floori(v)
+		var resto := v - float(base)
+		for x in ancho:
+			var nivel := base
+			if resto * 16.0 > float(BAYER[y % 4][x % 4]) + 0.5:
+				nivel = mini(base + 1, NIVELES_CIELO - 1)
+			var t := float(nivel) / float(NIVELES_CIELO - 1)
+			imagen.set_pixel(x, y, data.sky_top_color.lerp(data.sky_color, t))
+
+	var rng := RandomNumberGenerator.new()
+	rng.seed = hash(String(data.id))
+	var tenue := data.sky_color.lerp(Color(0.75, 0.80, 1.0), 0.35)
+	var brillante := Color(0.85, 0.88, 1.0)
+	for i in data.sky_stars:
+		# Más estrellas arriba, donde el cielo es más oscuro.
+		var y := int(float(alto - 8) * pow(rng.randf(), 1.8))
+		var x := rng.randi_range(1, ancho - 2)
+		if rng.randf() < 0.18:
+			# Estrella en cruz: centro brillante y brazos tenues.
+			imagen.set_pixel(x, y + 1, brillante)
+			for d: Vector2i in [Vector2i(-1, 1), Vector2i(1, 1), Vector2i(0, 0), Vector2i(0, 2)]:
+				imagen.set_pixel(x + d.x, y + d.y, tenue)
+		else:
+			imagen.set_pixel(x, y, tenue if rng.randf() < 0.7 else brillante)
+			if _titilantes.size() < 10 and rng.randf() < 0.3:
+				_titilantes.append(Vector3i(x, y, rng.randi_range(0, 239)))
+
+	var capa := StageData.Layer.new()
+	capa.texture = ImageTexture.create_from_image(imagen)
+	capa.parallax = PARALLAX_CIELO
+	capa.y = data.sky_from_y
+	capa.repeat_x = true
+	return capa
+
+
+## Unas pocas estrellas se encienden un momento de vez en cuando. Nada más:
+## el fondo no puede llamar la atención en un juego de lucha.
+func _draw_titilantes() -> void:
+	var ancho := float(_cielo.frame_width())
+	var scroll := camera_x * (1.0 - _cielo.parallax)
+	var arriba := -float(data.sky_to_y)
+	for s in _titilantes:
+		var fase := (tick + s.z) % 240
+		if fase > 14:
+			continue
+		var x := fposmod(float(s.x) + scroll - (camera_x - float(media_vista())), ancho) + camera_x - float(media_vista())
+		draw_rect(Rect2(x, arriba + float(s.y), 1, 1), Color(1, 1, 1))
+		if fase > 4 and fase < 10:
+			for d: Vector2 in [Vector2(-1, 0), Vector2(1, 0), Vector2(0, -1), Vector2(0, 1)]:
+				draw_rect(Rect2(x + d.x, arriba + float(s.y) + d.y, 1, 1), Color(0.8, 0.85, 1.0, 0.8))

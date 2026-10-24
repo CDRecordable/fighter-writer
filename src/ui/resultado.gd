@@ -19,11 +19,7 @@ const SELECCION := "res://scenes/seleccion.tscn"
 const MENU := "res://scenes/main_menu.tscn"
 const BIBLIOTECA := "res://scenes/biblioteca.tscn"
 
-const VELO := Color(0.05, 0.03, 0.09, 0.78)
-const TEXTO := Color(0.92, 0.90, 0.87)
-const TENUE := Color(0.62, 0.58, 0.68)
-const ACENTO := Color(0.95, 0.83, 0.25)
-const PREMIO := Color(1.0, 0.55, 0.85)
+const VELO := Color(0.05, 0.03, 0.09, 0.72)
 
 var ganador: String = ""
 var perdedor: String = ""
@@ -34,11 +30,9 @@ var ficha_desbloqueada: bool = false
 
 var _opciones: Array[Dictionary] = []
 var _seleccion: int = 0
-var _fuente: Font = null
 
 
 func _ready() -> void:
-	_fuente = ThemeDB.fallback_font
 	set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	_montar_opciones()
 
@@ -91,40 +85,53 @@ func _elegir() -> void:
 
 
 func _draw() -> void:
+	var ancho := size.x
 	draw_rect(Rect2(Vector2.ZERO, size), VELO)
 
-	draw_string(
-		_fuente, Vector2(0, 62), "GANA %s" % ganador.to_upper(),
-		HORIZONTAL_ALIGNMENT_CENTER, 480.0, 18, ACENTO
-	)
-	draw_string(
-		_fuente, Vector2(0, 80), "%d - %d   ·   %d%% de vida" % [
+	EstiloTinta.rotulo(self, Vector2(0, 66), "GANA %s" % ganador.to_upper(), 24, EstiloTinta.DORADO, HORIZONTAL_ALIGNMENT_CENTER, ancho)
+	EstiloTinta.texto(
+		self, Vector2(0, 86), "%d - %d   ·   %d%% de vida" % [
 			rondas[0], rondas[1], roundi(vida_restante * 100.0),
 		],
-		HORIZONTAL_ALIGNMENT_CENTER, 480.0, 8, TENUE
+		8, EstiloTinta.PAPEL_TENUE, HORIZONTAL_ALIGNMENT_CENTER, ancho
 	)
-	draw_string(
-		_fuente, Vector2(0, 100), rango(),
-		HORIZONTAL_ALIGNMENT_CENTER, 480.0, 11, PREMIO if gano_el_jugador else TENUE
-	)
+	_dibujar_sello(ancho)
 
+	var y_opciones := 172.0
 	if ficha_desbloqueada:
-		draw_string(
-			_fuente, Vector2(0, 122), "Ficha de %s desbloqueada en la Biblioteca" % perdedor,
-			HORIZONTAL_ALIGNMENT_CENTER, 480.0, 8, TEXTO
+		EstiloTinta.texto(
+			self, Vector2(0, 156), "Ficha de %s desbloqueada en la Biblioteca" % perdedor,
+			8, EstiloTinta.PAPEL, HORIZONTAL_ALIGNMENT_CENTER, ancho
 		)
+		y_opciones = 176.0
 
-	var y := 158.0
+	var alto_fila := 20.0
+	var ancho_panel := 240.0
+	var caja := Rect2(roundf((ancho - ancho_panel) * 0.5), y_opciones, ancho_panel, alto_fila * float(_opciones.size()) + 10.0)
+	EstiloTinta.marco(self, caja, Color(EstiloTinta.TINTA_OSCURA, 0.85))
+	var y := caja.position.y + 21.0
 	for i in _opciones.size():
 		var elegido := i == _seleccion
-		var texto: String = String(_opciones[i]["texto"])
-		draw_string(
-			_fuente, Vector2(0, y), ("> %s <" % texto) if elegido else texto,
-			HORIZONTAL_ALIGNMENT_CENTER, 480.0, 10, ACENTO if elegido else TEXTO
-		)
-		y += 16.0
+		var texto := String(_opciones[i]["texto"])
+		EstiloTinta.texto(self, Vector2(caja.position.x, y), texto, 16, EstiloTinta.DORADO if elegido else EstiloTinta.PAPEL, HORIZONTAL_ALIGNMENT_CENTER, caja.size.x)
+		if elegido:
+			var mitad := EstiloTinta.ancho_texto(texto, 16) * 0.5
+			var cx := caja.position.x + caja.size.x * 0.5
+			EstiloTinta.rombo(self, Vector2(roundf(cx - mitad - 16.0), y - 11.0), EstiloTinta.DORADO, true)
+			EstiloTinta.rombo(self, Vector2(roundf(cx + mitad + 9.0), y - 11.0), EstiloTinta.DORADO, true)
+		y += alto_fila
 
-	draw_string(
-		_fuente, Vector2(0, size.y - 10.0), "↑↓ elegir   Enter aceptar",
-		HORIZONTAL_ALIGNMENT_CENTER, 480.0, 7, TENUE
-	)
+	EstiloTinta.texto(self, Vector2(0, size.y - 12.0), "↑↓ elegir   ·   Enter aceptar", 8, EstiloTinta.PAPEL_TENUE, HORIZONTAL_ALIGNMENT_CENTER, ancho)
+
+
+## El rango, como un sello de goma estampado: doble marco y tinta del color
+## del premio. Es el chiste del juego, así que se le da el sitio de honor.
+func _dibujar_sello(ancho: float) -> void:
+	var texto := rango()
+	var color := EstiloTinta.SUPER if gano_el_jugador else EstiloTinta.PAPEL_TENUE
+	var w := roundf(EstiloTinta.ancho_texto(texto, 16)) + 28.0
+	var caja := Rect2(roundf((ancho - w) * 0.5), 104.0, w, 30.0)
+	draw_rect(caja, Color(EstiloTinta.TINTA_OSCURA, 0.6))
+	draw_rect(caja, color, false, 2.0)
+	draw_rect(caja.grow(-4.0), color, false, 1.0)
+	EstiloTinta.texto(self, Vector2(caja.position.x, caja.position.y + 22.0), texto, 16, color, HORIZONTAL_ALIGNMENT_CENTER, caja.size.x)

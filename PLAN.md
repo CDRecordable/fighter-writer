@@ -123,6 +123,7 @@ Como en SF2, cada escenario cuenta quién es el dueño, con 2-3 elementos animad
 
 Decisiones técnicas de arranque:
 - Resolución interna **480×270** (escala entera ×4 a 1080p y ×8 a 4K), sprites de personaje de **~120-128 px de alto**.
+  - **Actualización (revamp gráfico, octubre 2026):** la resolución pasa a **640×360** (×2 a 720p, ×3 a 1080p). Con la tecnología de generación actual el coste de un sprite más grande ya no es el cuello de botella, y a 640×360 los personajes regenerados a ~112 px ocupan la misma proporción de pantalla que los de 80 px a 480×270, con más detalle. Ver docs/ARQUITECTURA.md §14.
   - Referencia: SF2 corría a 384×224 con sprites de ~90-110 px. A 480×270 nuestros personajes ocupan proporcionalmente MÁS pantalla que en SF2 — aspecto "hi-bit" moderno, no retro-crudo.
   - Por qué no más: el coste de arte crece ~cuadráticamente con el tamaño del sprite, y 128 px es además el techo práctico de generación de PixelLab (ver §8) — a 480×270 herramienta y resolución encajan. 640×360 (sprites ~170 px) queda como opción solo si el test de Fase 0 sobra de tiempo.
 - Hitboxes/hurtboxes definidas por frame en datos (no hardcodeadas) → los movesets se ajustan sin tocar código.

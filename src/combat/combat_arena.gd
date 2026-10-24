@@ -18,7 +18,6 @@ const ROUNDS_TO_WIN := 2
 const STAGE_ID := "galeon"
 
 const STAGE_HALF_WIDTH := 360  ## px a cada lado del centro (por defecto)
-const VIEW_HALF_WIDTH := 240   ## mitad de la resolución interna (480)
 const WALL_MARGIN := 18        ## px que el cuerpo no puede pasar del borde
 const START_DISTANCE := 62     ## px de separación inicial entre luchadores
 const FLOOR_SCREEN_Y := 96     ## altura del suelo respecto al centro de cámara
@@ -44,6 +43,8 @@ var _contact_point := Vector2.ZERO
 var stage_half_width: int = STAGE_HALF_WIDTH
 var floor_screen_y: int = FLOOR_SCREEN_Y
 var hud: CanvasLayer = null
+## Media anchura de la vista: la mitad de la resolución interna.
+var view_half_width: int = Stage.media_vista()
 ## Pantalla de resultado, superpuesta al combate congelado. Mientras exista,
 ## manda ella: se traga el input para que las teclas del combate no respondan
 ## por detrás.
@@ -85,6 +86,18 @@ func _build_effects() -> void:
 	add_child(effects)
 	for fighter in fighters:
 		fighter.landed.connect(_on_fighter_landed.bind(fighter))
+		fighter.super_started.connect(_on_super_started.bind(fighter))
+
+
+## El súper se anuncia a lo grande: el fondo se apaga a tinta mientras dura la
+## congelación y brota una mancha alrededor de quien lo lanza. Puro efecto: la
+## congelación ya la ha aplicado el luchador.
+func _on_super_started(freeze_ticks: int, fighter: Fighter) -> void:
+	var at := Vector2(FP.floor_px(fighter.pos_x), -40.0)
+	effects.super_inicio(at, fighter.facing)
+	if stage != null:
+		stage.oscurecer(freeze_ticks)
+	_shake(1.2)
 
 
 func _on_fighter_landed(hard: bool, fighter: Fighter) -> void:
@@ -364,8 +377,8 @@ func _resolve_pushboxes() -> void:
 ## Nadie sale de la pantalla ni del escenario, como en SF2.
 func _clamp_to_stage() -> void:
 	var center := _camera_center_px()
-	var view_min := FP.from_px(float(center - VIEW_HALF_WIDTH + WALL_MARGIN))
-	var view_max := FP.from_px(float(center + VIEW_HALF_WIDTH - WALL_MARGIN))
+	var view_min := FP.from_px(float(center - view_half_width + WALL_MARGIN))
+	var view_max := FP.from_px(float(center + view_half_width - WALL_MARGIN))
 	var stage_min := FP.from_px(float(-stage_half_width + WALL_MARGIN))
 	var stage_max := FP.from_px(float(stage_half_width - WALL_MARGIN))
 	for fighter in fighters:
@@ -525,7 +538,7 @@ func _any_in_hitstop() -> bool:
 
 func _camera_center_px() -> int:
 	var mid := (fighters[0].pos_x + fighters[1].pos_x) / 2
-	var limit := stage_half_width - VIEW_HALF_WIDTH
+	var limit := stage_half_width - view_half_width
 	return clampi(FP.floor_px(mid), -limit, limit)
 
 

@@ -6,9 +6,12 @@
   "id": "galeon",
   "display_name": "Cubierta del galeón",
   "owner": "arturo_perez_reverte",
-  "half_width": 360,
-  "floor_screen_y": 96,
-  "sky_color": "#16233c",
+  "half_width": 440,
+  "floor_screen_y": 140,
+  "sky_color": "#091647",
+
+  "_comentario_cielo": "La imagen del cielo mide 140 px y la pantalla 360: lo que queda por encima es un degradado tramado generado al cargar, que arranca justo en el color de la fila de arriba de cielo_px.png (#091647) para que no haya costura, y oscurece hacia la noche con estrellas.",
+  "sky": {"bottom": "#091647", "top": "#030718", "from_y": 186, "to_y": 340, "stars": 90},
 
   "_comentario_arte": "Capas generadas con PixelLab (create_image_pixflux, 1 generación cada una) salvo el mar CC0 de POKOMOKO. Las capas anchas usan repeat_mirror: una imagen generada no repite sin costura, pero espejada contra sí misma repite siempre, por construcción.",
 
@@ -85,7 +88,7 @@
       "autor": "Generadas con PixelLab bajo dirección del equipo",
       "licencia": "Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12)",
       "url": "https://pixellab.ai/termsofservice",
-      "cambios": "El barril se convirtió en tira de 2 frames (vibración del móvil); el mástil se generó por img2img sobre la composición propia"
+      "cambios": "El barril se convirtió en tira de 2 frames (vibración del móvil); el mástil se generó por img2img sobre la composición propia y se alargó 160 px repitiendo un tramo del palo; a la cubierta se le quitó la franja negra opaca de arriba"
     }
   ]
 }

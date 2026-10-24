@@ -38,6 +38,11 @@ const KEYS := {
 
 
 func _enter_tree() -> void:
+	# La fuente pixel propia pasa a ser la de todo el juego: cualquier Label o
+	# draw_string que no pida otra la usa sin enterarse.
+	ThemeDB.fallback_font = FuentePixel.cargar()
+	ThemeDB.fallback_font_size = FuentePixel.TAMANO
+
 	for player in range(1, PLAYERS + 1):
 		var prefix := "p%d_" % player
 		for action_suffix: String in KEYS[player].keys():
