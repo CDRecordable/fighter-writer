@@ -246,11 +246,13 @@ Cada capa declara su profundidad:
 El escenario también manda su **ancho** y la **altura del suelo**, así que un
 escenario estrecho y agobiante o uno largo son cosa de datos.
 
-Las capas de ahora están generadas, no dibujadas:
-
-```bash
-godot --headless --path . --script res://tools/generar_escenario.gd
-```
+El cielo, el sol y el mar no son imágenes: se generan en código
+(`src/combat/fondo_procedural.gd`) a partir de los colores de `sky`, `sun` y
+`sea` del `stage.json` — degradado tramado, sol medio hundido y un mar de
+destellos animado. Las imágenes se reservan para lo que tiene forma: la
+cubierta, el mástil, las nubes, la flota, los accesorios. Todo sale de una sola
+paleta (`stages/galeon/fuentes/paleta.png`), que se fuerza también al generar
+con PixelLab; los bocetos sobre los que se generó están en `fuentes/`.
 
 ### Créditos del arte de terceros
 

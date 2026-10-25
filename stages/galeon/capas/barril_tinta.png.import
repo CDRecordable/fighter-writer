@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c6h8qlmrbtwv3"
-path="res://.godot/imported/cubierta_px.png-0b623b5e4948826e906684c8b25b2671.ctex"
+uid="uid://bb4dyy22cplnk"
+path="res://.godot/imported/barril_tinta.png-efa9ac3a7fc98e0eb3fab2960aac133e.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/cubierta_px.png"
-dest_files=["res://.godot/imported/cubierta_px.png-0b623b5e4948826e906684c8b25b2671.ctex"]
+source_file="res://stages/galeon/capas/barril_tinta.png"
+dest_files=["res://.godot/imported/barril_tinta.png-efa9ac3a7fc98e0eb3fab2960aac133e.ctex"]
 
 [params]
 

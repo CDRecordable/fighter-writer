@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cbwqp4eyo270i"
-path="res://.godot/imported/mastil_px.png-d4c9c80a3ef855a82e50539928449213.ctex"
+uid="uid://bb485q0hb8g4e"
+path="res://.godot/imported/flota_tinta.png-5cbd957bff57fecb3ad66f158e587f05.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/mastil_px.png"
-dest_files=["res://.godot/imported/mastil_px.png-d4c9c80a3ef855a82e50539928449213.ctex"]
+source_file="res://stages/galeon/capas/flota_tinta.png"
+dest_files=["res://.godot/imported/flota_tinta.png-5cbd957bff57fecb3ad66f158e587f05.ctex"]
 
 [params]
 

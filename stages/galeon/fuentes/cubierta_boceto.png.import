@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cxnohs3djs73n"
-path="res://.godot/imported/barril.png-b046e62e86ed58eee7346e04b89a2340.ctex"
+uid="uid://bhmo06tkbbder"
+path="res://.godot/imported/cubierta_boceto.png-ddb6cde1e07fba8bbdd4289c95394a95.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/barril.png"
-dest_files=["res://.godot/imported/barril.png-b046e62e86ed58eee7346e04b89a2340.ctex"]
+source_file="res://stages/galeon/fuentes/cubierta_boceto.png"
+dest_files=["res://.godot/imported/cubierta_boceto.png-ddb6cde1e07fba8bbdd4289c95394a95.ctex"]
 
 [params]
 

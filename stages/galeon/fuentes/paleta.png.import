@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://bf1civra0ljji"
-path="res://.godot/imported/cielo_px.png-323dcb1913819fc9cf5566cd466fe2a7.ctex"
+uid="uid://cinn15aamfckf"
+path="res://.godot/imported/paleta.png-6da110fa66e62591a5d4ff7ae1ddff5f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/cielo_px.png"
-dest_files=["res://.godot/imported/cielo_px.png-323dcb1913819fc9cf5566cd466fe2a7.ctex"]
+source_file="res://stages/galeon/fuentes/paleta.png"
+dest_files=["res://.godot/imported/paleta.png-6da110fa66e62591a5d4ff7ae1ddff5f.ctex"]
 
 [params]
 

@@ -80,6 +80,7 @@ func _run_all() -> void:
 	_test_reinicio_instantaneo()
 
 	_test_fuente_cubre_los_textos()
+	_test_escenarios_cubren_la_vista()
 
 	print("")
 	if failures.is_empty():
@@ -93,6 +94,26 @@ func _run_all() -> void:
 
 
 # --- Pruebas -----------------------------------------------------------------
+
+func _test_escenarios_cubren_la_vista() -> void:
+	# Con la cámara en reposo, la vista va de floor_screen_y + media altura por
+	# encima del suelo a (media altura - floor_screen_y) por debajo. Si el cielo
+	# o la capa más baja no llegan, asoma una franja de color plano: justo el
+	# defecto que el revamp quitó.
+	var media_alto := int(ProjectSettings.get_setting("display/window/size/viewport_height", 360)) / 2
+	for id in StageData.list_ids():
+		var stage := StageData.load_stage(id)
+		var json: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://stages/%s/stage.json" % id))
+		_check("todas las capas de %s cargan (%d de %d)" % [id, stage.layers.size(), json.get("layers", []).size()],
+			stage.layers.size() == json.get("layers", []).size())
+		_check("el cielo de %s llega arriba de la pantalla" % id,
+			stage.sky_to_y >= stage.floor_screen_y + media_alto)
+		var mas_baja := 0
+		for capa in stage.layers:
+			mas_baja = mini(mas_baja, capa.y)
+		_check("el suelo de %s llega abajo de la pantalla" % id,
+			-mas_baja >= media_alto - stage.floor_screen_y)
+
 
 func _test_fuente_cubre_los_textos() -> void:
 	# La fuente pixel está hecha a mano (assets/fuente/tinta.txt): un carácter

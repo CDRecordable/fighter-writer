@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://c3bxdo1s4melh"
-path="res://.godot/imported/mar_lejos.png-1f7c64f2676db52e9b1d5191b6c4dcd4.ctex"
+uid="uid://y5dgp006wrd4"
+path="res://.godot/imported/nube_tinta.png-3334c95f9bb6346ab68634c5104fdf30.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/mar_lejos.png"
-dest_files=["res://.godot/imported/mar_lejos.png-1f7c64f2676db52e9b1d5191b6c4dcd4.ctex"]
+source_file="res://stages/galeon/capas/nube_tinta.png"
+dest_files=["res://.godot/imported/nube_tinta.png-3334c95f9bb6346ab68634c5104fdf30.ctex"]
 
 [params]
 

@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://di5eon8wfnf80"
-path="res://.godot/imported/gaviotas.png-c35aae41055787fb6db599800bf0f8b6.ctex"
+uid="uid://cyqypecndxnwr"
+path="res://.godot/imported/cubierta_tinta.png-a66e084c0265844d5e2af13d46693bba.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/gaviotas.png"
-dest_files=["res://.godot/imported/gaviotas.png-c35aae41055787fb6db599800bf0f8b6.ctex"]
+source_file="res://stages/galeon/capas/cubierta_tinta.png"
+dest_files=["res://.godot/imported/cubierta_tinta.png-a66e084c0265844d5e2af13d46693bba.ctex"]
 
 [params]
 

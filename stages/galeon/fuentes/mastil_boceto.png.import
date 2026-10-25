@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dduodppa3ylln"
-path="res://.godot/imported/barril_px_strip.png-0c6d26bb3cc1e8dbf653b03ecb49d4ab.ctex"
+uid="uid://dljxxc0g4wrjt"
+path="res://.godot/imported/mastil_boceto.png-de7bd1e5c1c19bf0608caf5af7690e7f.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/barril_px_strip.png"
-dest_files=["res://.godot/imported/barril_px_strip.png-0c6d26bb3cc1e8dbf653b03ecb49d4ab.ctex"]
+source_file="res://stages/galeon/fuentes/mastil_boceto.png"
+dest_files=["res://.godot/imported/mastil_boceto.png-de7bd1e5c1c19bf0608caf5af7690e7f.ctex"]
 
 [params]
 

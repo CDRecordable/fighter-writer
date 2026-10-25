@@ -36,6 +36,9 @@ class Layer:
 	## (las gaviotas del galeón, PLAN.md §5). 1 = imagen quieta.
 	var frames: int = 1
 	var hold: int = 8
+	## Volteo horizontal al cargar: una misma nube volteada y a otra altura
+	## pasa por otra nube, sin generar arte nuevo.
+	var flip_x: bool = false
 
 	func frame_width() -> int:
 		if texture == null:
@@ -57,6 +60,13 @@ var sky_top_color: Color = sky_color
 var sky_from_y: int = 0
 var sky_to_y: int = 0
 var sky_stars: int = 0
+## Paradas del degradado del cielo, de arriba al horizonte. Con dos paradas
+## es el degradado simple de antes (sky_top_color → sky_color).
+var sky_stops: Array[Color] = []
+var sky_parallax: float = 0.04
+## Sol y mar procedurales (FondoProcedural). Vacíos = el escenario no tiene.
+var sun: Dictionary = {}
+var sea: Dictionary = {}
 var layers: Array[Layer] = []
 var credits: Array[Dictionary] = []
 
@@ -101,6 +111,20 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 		stage.sky_from_y = int(cielo.get("from_y", 0))
 		stage.sky_to_y = int(cielo.get("to_y", 0))
 		stage.sky_stars = int(cielo.get("stars", 0))
+		stage.sky_parallax = float(cielo.get("parallax", 0.04))
+		for c: Variant in cielo.get("stops", []):
+			stage.sky_stops.append(Color(String(c)))
+		if not stage.sky_stops.is_empty():
+			stage.sky_top_color = stage.sky_stops[0]
+			stage.sky_color = stage.sky_stops[stage.sky_stops.size() - 1]
+	if stage.sky_stops.is_empty():
+		stage.sky_stops = [stage.sky_top_color, stage.sky_color]
+	var sol: Variant = d.get("sun", null)
+	if sol is Dictionary:
+		stage.sun = sol
+	var mar: Variant = d.get("sea", null)
+	if mar is Dictionary:
+		stage.sea = mar
 
 	for raw: Variant in d.get("layers", []):
 		if not (raw is Dictionary):
@@ -117,9 +141,12 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 		layer.tint = Color(String(entry.get("tint", "#ffffff")))
 		layer.frames = maxi(1, int(entry.get("frames", 1)))
 		layer.hold = maxi(1, int(entry.get("hold", 8)))
+		layer.flip_x = bool(entry.get("flip_x", false))
 		var image_path := "%s/%s/%s" % [ROOT, stage_id, String(entry.get("image", ""))]
 		if ResourceLoader.exists(image_path):
 			layer.texture = load(image_path)
+			if layer.flip_x:
+				layer.texture = _voltear(layer.texture)
 			if layer.repeat_mirror:
 				layer.texture = _doblar_en_espejo(layer.texture)
 			stage.layers.append(layer)
@@ -148,3 +175,12 @@ static func _doblar_en_espejo(texture: Texture2D) -> Texture2D:
 	doble.blit_rect(original, Rect2i(Vector2i.ZERO, original.get_size()), Vector2i.ZERO)
 	doble.blit_rect(espejo, Rect2i(Vector2i.ZERO, espejo.get_size()), Vector2i(original.get_width(), 0))
 	return ImageTexture.create_from_image(doble)
+
+
+static func _voltear(texture: Texture2D) -> Texture2D:
+	var imagen := texture.get_image()
+	if imagen == null:
+		return texture
+	imagen.decompress()
+	imagen.flip_x()
+	return ImageTexture.create_from_image(imagen)

@@ -5,11 +5,8 @@
 
 ## Arte de terceros
 
-- **Animated Ocean Water Tile** — POKOMOKO · CC0 1.0 (dominio público) · [origen](https://opengameart.org/content/animated-ocean-water-tile)
-  - Modificaciones: ninguno; se usa la tira tal cual como capa de mar cercano
-  - Usado en: `res://stages/galeon/stage.json`
-- **Capas del galeón: cielo, cubierta, flota, mástil y barril** — Generadas con PixelLab bajo dirección del equipo · Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12) · [origen](https://pixellab.ai/termsofservice)
-  - Modificaciones: El barril se convirtió en tira de 2 frames (vibración del móvil); el mástil se generó por img2img sobre la composición propia y se alargó 160 px repitiendo un tramo del palo; a la cubierta se le quitó la franja negra opaca de arriba
+- **Capas del galeón: cubierta, nube, flota, barril y cañón** — Generadas con PixelLab bajo dirección del equipo · Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12) · [origen](https://pixellab.ai/termsofservice)
+  - Modificaciones: Todo con la paleta forzada de fuentes/paleta.png. La cubierta es img2img sobre un boceto propio (fuentes/cubierta_boceto.png); el barril se convirtió en tira de 2 frames. Mástil, gaviotas, cielo, sol y mar están dibujados por el equipo (a mano o en código), no generados.
   - Usado en: `res://stages/galeon/stage.json`
 - **Hoja de sprites de Cristina Morales (base + 15 animaciones)** — Generada con PixelLab bajo dirección del equipo · Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12) · [origen](https://pixellab.ai/termsofservice)
   - Modificaciones: Compuesta y re-centrada con tools/importar_pixellab.gd; pendiente de remate manual en Aseprite

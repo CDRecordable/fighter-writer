@@ -278,6 +278,13 @@ código, no en imágenes:
 - **Luz de borde** (`src/combat/luchador.gdshader`): el atardecer está detrás de
   los luchadores, así que les llega contraluz en los bordes de la silueta. Mete
   los sprites en la luz del escenario sin repintarlos.
+- **Fondo procedural** (`src/combat/fondo_procedural.gd`): cielo en degradado
+  tramado por paradas, sol medio hundido y mar de destellos animado, todo desde
+  los colores del `stage.json`. Las capas más grandes son las que peor salen
+  generadas con IA (no repiten sin costura; en espejo salen simétricas), así
+  que se hacen en código y el arte generado se reserva para lo que tiene forma.
+  Todo el escenario comparte una paleta (`stages/<id>/fuentes/paleta.png`), que
+  se fuerza también al generar.
 - **Efectos de tinta** (`effects.gd`): salpicaduras con puntas y destello de
   papel; el súper apaga el escenario (`Stage.oscurecer`) y pinta su mancha
   detrás de quien lo lanza.

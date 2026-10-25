@@ -1,5 +1,5 @@
 {
-  "_comentario": "Cubierta de galeón — el escenario de Pérez-Reverte (PLAN.md §5): mar embravecido, gaviotas, y un móvil que vibra sin parar sobre un barril. Las capas de ahora están GENERADAS (tools/generar_escenario.gd), no dibujadas: sirven para probar el parallax y para que el artista sepa qué tamaño tiene cada franja.",
+  "_comentario": "Cubierta de galeón — el escenario de Pérez-Reverte (PLAN.md §5): un atardecer en alta mar con una batalla naval al fondo, gaviotas, y un móvil que vibra sin parar sobre un barril. Rehecho en el revamp 'Tinta' como UNA composición: todo sale de una sola paleta (fuentes/paleta.png) y la luz es la misma en todo, el sol detrás de los luchadores.",
 
   "_comentario_capas": "parallax 1.0 = la capa va clavada al mundo y se mueve como el suelo. 0.0 = se queda pegada a la cámara, o sea infinitamente lejos. 'y' es a cuántos píxeles del suelo se apoya el BORDE INFERIOR de la imagen. 'frames' parte la imagen en una tira horizontal de fotogramas.",
 
@@ -8,66 +8,85 @@
   "owner": "arturo_perez_reverte",
   "half_width": 440,
   "floor_screen_y": 140,
-  "sky_color": "#091647",
 
-  "_comentario_cielo": "La imagen del cielo mide 140 px y la pantalla 360: lo que queda por encima es un degradado tramado generado al cargar, que arranca justo en el color de la fila de arriba de cielo_px.png (#091647) para que no haya costura, y oscurece hacia la noche con estrellas.",
-  "sky": {"bottom": "#091647", "top": "#030718", "from_y": 186, "to_y": 340, "stars": 90},
-
-  "_comentario_arte": "Capas generadas con PixelLab (create_image_pixflux, 1 generación cada una) salvo el mar CC0 de POKOMOKO. Las capas anchas usan repeat_mirror: una imagen generada no repite sin costura, pero espejada contra sí misma repite siempre, por construcción.",
+  "_comentario_cielo": "Cielo, sol y mar NO son imágenes: los genera src/combat/fondo_procedural.gd con estos colores (todos de la paleta). El horizonte está a 120 px del suelo; la borda de la cubierta tapa el mar por debajo de 52.",
+  "sky": {
+    "stops": ["#0b0d24", "#141533", "#1f1b45", "#2e2257", "#452a66", "#642f6e", "#8a3a6e", "#b44a63", "#d8645a", "#f08a4b"],
+    "from_y": 120,
+    "to_y": 340,
+    "stars": 60,
+    "parallax": 0.04
+  },
+  "_nota_sol": "El sol va a la izquierda, detrás del palo mayor: su reguero de destellos queda lejos de las cabezas de los luchadores, y el palo se recorta contra él.",
+  "sun": { "x": -250, "radius": 26, "colors": ["#fff4c8", "#ffe08a", "#ffb45a"], "glow": "#f08a4b" },
+  "sea": {
+    "from_y": 40,
+    "to_y": 120,
+    "stops": ["#8a3a6e", "#642f6e", "#452a66", "#2e2257", "#1f1b45"],
+    "highlights": ["#b44a63", "#8a3a6e", "#d8645a"],
+    "glitter": ["#fff4c8", "#ffe08a", "#ffb45a", "#f08a4b"],
+    "horizon": "#d8645a",
+    "frames": 8,
+    "hold": 9
+  },
 
   "layers": [
     {
-      "_nota": "Cielo con atardecer. A parallax 0.08 apenas se desplaza, así que el sol nunca sale de cuadro ni se duplica en pantalla.",
-      "image": "capas/cielo_px.png",
-      "parallax": 0.08,
-      "y": 46,
-      "repeat_mirror": true
+      "_nota": "Nubes: la misma nube generada, volteada y a otra altura para la segunda.",
+      "image": "capas/nube_tinta.png",
+      "parallax": 0.03,
+      "x": -330,
+      "y": 196
     },
     {
-      "_nota": "Flota en el horizonte, con humo de cañones: el guiño a Trafalgar. La 'y' la deja asomando justo por encima de la banda del mar (que llega a 110 px del suelo).",
-      "image": "capas/flota_px.png",
-      "parallax": 0.2,
-      "y": 104,
-      "repeat_mirror": true,
-      "tint": "#b9a8c9"
+      "image": "capas/nube_tinta.png",
+      "parallax": 0.02,
+      "x": 120,
+      "y": 238,
+      "flip_x": true
     },
     {
-      "_nota": "Mar cercano: tira CC0 de POKOMOKO (ver 'credits'). Es un tile de agua de 64x64 en 4 fotogramas; aquí se usa como banda de superficie vista desde la cubierta.",
-      "image": "capas/mar_cc0.png",
-      "parallax": 0.55,
-      "y": 46,
-      "repeat_x": true,
+      "_nota": "La batalla de Trafalgar en el horizonte: el guiño a Reverte. Los cascos se apoyan en la línea del horizonte (120).",
+      "image": "capas/flota_tinta.png",
+      "parallax": 0.06,
+      "x": -200,
+      "y": 117
+    },
+    {
+      "_nota": "Gaviotas a contraluz: siluetas oscuras contra la parte clara del cielo.",
+      "image": "capas/gaviotas_tinta.png",
+      "parallax": 0.3,
+      "x": -150,
+      "y": 168,
       "frames": 4,
-      "hold": 10,
-      "_nota_tinte": "El tile original es mucho más contrastado que el resto del escenario y se comía la atención. El tinte lo oscurece y lo mete en la paleta sin tocar el PNG, que además así sigue siendo el archivo original tal cual lo publicó su autor.",
-      "tint": "#7c93b4"
+      "hold": 9
     },
     {
-      "image": "capas/gaviotas.png",
-      "parallax": 0.35,
-      "x": -60,
-      "y": 118,
-      "frames": 4,
-      "hold": 10
-    },
-    {
-      "image": "capas/mastil_px.png",
-      "parallax": 0.85,
-      "x": -140,
-      "y": 0
-    },
-    {
-      "image": "capas/cubierta_px.png",
+      "_nota": "Borda y cubierta: borda maciza en sombra (el sol está detrás) con el filo del pasamanos encendido. De -40 (borde de pantalla) a 52 (tapa del pasamanos).",
+      "image": "capas/cubierta_tinta.png",
       "parallax": 1.0,
       "y": -40,
       "repeat_mirror": true
     },
     {
-      "_nota": "El barril con el móvil que vibra (PLAN.md §5). La tira de 2 frames sale de barril_px.png con tools: el frame 2 desplaza 1 px la zona del móvil.",
-      "image": "capas/barril_px_strip.png",
+      "_nota": "Palo mayor con sus obenques bajando a la borda. Va delante de la borda y detrás de los luchadores.",
+      "image": "capas/mastil_tinta.png",
       "parallax": 1.0,
-      "x": 150,
-      "y": 0,
+      "x": -330,
+      "y": 0
+    },
+    {
+      "image": "capas/canon_tinta.png",
+      "parallax": 1.0,
+      "x": -436,
+      "y": 4
+    },
+    {
+      "_nota": "El barril con el móvil que vibra (PLAN.md §5): tira de 2 frames, el segundo desplaza 1 px el móvil.",
+      "image": "capas/barril_tinta.png",
+      "parallax": 1.0,
+      "x": 236,
+      "y": 4,
       "frames": 2,
       "hold": 4
     }
@@ -77,18 +96,11 @@
 
   "credits": [
     {
-      "obra": "Animated Ocean Water Tile",
-      "autor": "POKOMOKO",
-      "licencia": "CC0 1.0 (dominio público)",
-      "url": "https://opengameart.org/content/animated-ocean-water-tile",
-      "cambios": "ninguno; se usa la tira tal cual como capa de mar cercano"
-    },
-    {
-      "obra": "Capas del galeón: cielo, cubierta, flota, mástil y barril",
+      "obra": "Capas del galeón: cubierta, nube, flota, barril y cañón",
       "autor": "Generadas con PixelLab bajo dirección del equipo",
       "licencia": "Propiedad del equipo según los términos de PixelLab (verificados el 2026-08-12)",
       "url": "https://pixellab.ai/termsofservice",
-      "cambios": "El barril se convirtió en tira de 2 frames (vibración del móvil); el mástil se generó por img2img sobre la composición propia y se alargó 160 px repitiendo un tramo del palo; a la cubierta se le quitó la franja negra opaca de arriba"
+      "cambios": "Todo con la paleta forzada de fuentes/paleta.png. La cubierta es img2img sobre un boceto propio (fuentes/cubierta_boceto.png); el barril se convirtió en tira de 2 frames. Mástil, gaviotas, cielo, sol y mar están dibujados por el equipo (a mano o en código), no generados."
     }
   ]
 }

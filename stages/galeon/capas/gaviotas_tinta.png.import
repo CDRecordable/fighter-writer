@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://me2pn0cglmem"
-path="res://.godot/imported/mar_cerca.png-782886cb2609c2ca4519d5812383fb3d.ctex"
+uid="uid://cggy0ltlqdbpw"
+path="res://.godot/imported/gaviotas_tinta.png-5b6ffcc11dde885339d1c8552fdf111c.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/mar_cerca.png"
-dest_files=["res://.godot/imported/mar_cerca.png-782886cb2609c2ca4519d5812383fb3d.ctex"]
+source_file="res://stages/galeon/capas/gaviotas_tinta.png"
+dest_files=["res://.godot/imported/gaviotas_tinta.png-5b6ffcc11dde885339d1c8552fdf111c.ctex"]
 
 [params]
 

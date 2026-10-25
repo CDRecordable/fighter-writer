@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://cov4wy82w3yda"
-path="res://.godot/imported/flota_px.png-ae201b272fabcd3dc53a7a9b642d8c13.ctex"
+uid="uid://cc3kcwhqrhhc5"
+path="res://.godot/imported/canon_tinta.png-5358e014ca9281fd9eb31ef0740156b3.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://stages/galeon/capas/flota_px.png"
-dest_files=["res://.godot/imported/flota_px.png-ae201b272fabcd3dc53a7a9b642d8c13.ctex"]
+source_file="res://stages/galeon/capas/canon_tinta.png"
+dest_files=["res://.godot/imported/canon_tinta.png-5358e014ca9281fd9eb31ef0740156b3.ctex"]
 
 [params]
 
