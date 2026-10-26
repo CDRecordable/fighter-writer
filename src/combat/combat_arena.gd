@@ -56,6 +56,11 @@ var dummy: Agents.Dummy = null
 ## significa "elige tú". Es por donde entrará la pantalla de selección de la
 ## Fase 2, y por donde el informe de frames mide a cada personaje.
 var p1_override: String = ""
+## Escenario que se carga; vacío = STAGE_ID. Lo fija quien crea la arena.
+var stage_override: String = ""
+## Vista 3D (prueba del paso a 3D), si el escenario es 3D.
+var vista_3d: Vista3D = null
+var _datos_3d: StageData = null
 var p2_override: String = ""
 
 var round_state: int = RoundState.INTRO
@@ -76,6 +81,7 @@ func _ready() -> void:
 	_build_camera()
 	_build_fighters()
 	_build_effects()
+	_build_vista_3d()
 	_build_hud()
 	_start_round(1)
 
@@ -97,6 +103,8 @@ func _on_super_started(freeze_ticks: int, fighter: Fighter) -> void:
 	effects.super_inicio(at, fighter.facing)
 	if stage != null:
 		stage.oscurecer(freeze_ticks)
+	if vista_3d != null:
+		vista_3d.oscurecer(freeze_ticks)
 	_shake(1.2)
 
 
@@ -111,15 +119,28 @@ func _on_fighter_landed(hard: bool, fighter: Fighter) -> void:
 ## altura de pantalla queda el suelo. Así un escenario estrecho y agobiante o
 ## uno largo son cosa de datos, no de tocar la arena.
 func _build_stage() -> void:
-	var data := StageData.load_stage(STAGE_ID)
+	var data := StageData.load_stage(stage_override if stage_override != "" else STAGE_ID)
 	if data == null:
 		return
 	stage_half_width = data.half_width
 	floor_screen_y = data.floor_screen_y
+	if not data.modo_3d.is_empty():
+		# El escenario 3D se monta cuando ya hay luchadores (_build_vista_3d).
+		_datos_3d = data
+		return
 	stage = Stage.new()
 	stage.name = "Escenario"
 	stage.setup(data)
 	add_child(stage)
+
+
+func _build_vista_3d() -> void:
+	if _datos_3d == null:
+		return
+	vista_3d = Vista3D.new()
+	vista_3d.name = "Vista3D"
+	vista_3d.setup(self, _datos_3d)
+	add_child(vista_3d)
 
 
 func _build_camera() -> void:
@@ -610,7 +631,7 @@ func clock_seconds() -> int:
 
 
 func _draw() -> void:
-	if stage != null:
+	if stage != null or vista_3d != null:
 		# Con escenario cargado, las marcas de distancia solo estorban; se
 		# encienden con las cajas (F1), que es cuando se están midiendo cosas.
 		if show_boxes:

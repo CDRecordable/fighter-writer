@@ -1,0 +1,36 @@
+{
+  "_comentario": "Piscina municipal: prueba del paso a 3D. La escena sale del proyecto Blender Cinemascope (build_piscina.py, todo generado por script, sin assets de terceros) exportada con tools/blender/exportar_piscina.py. Se pelea en la playa del lado de los ventanales, con toda la piscina detrás y el muro azul al fondo; la cámara queda fuera del edificio y el plano de recorte cercano quita lo que hay entre ella y los luchadores (cristalera, fachada).",
+
+  "id": "piscina",
+  "display_name": "Piscina municipal",
+  "owner": "cristina_morales",
+  "half_width": 440,
+  "floor_screen_y": 140,
+
+  "modo_3d": {
+    "escena": "piscina.glb",
+    "_nota_origen": "Punto de la escena (en coordenadas de Godot) que pasa a ser el centro del combate: en la playa de los ventanales, a 0,8 m del borde del vaso.",
+    "origen": [2.75, 0.0, 6.8],
+    "_nota_recorte": "Metros por delante del plano del combate que se ven. Lo que esté más cerca de la cámara se recorta.",
+    "recorte_delante": 2.3,
+    "_nota_ocultar": "Las piezas que están enteras a más de estos metros por delante del plano del combate (pilares y cristalera del lado de la cámara) no se dibujan: taparían a los luchadores.",
+    "ocultar_delante": 0.6,
+    "metros_por_pixel": 0.015,
+    "distancia_camara": 9.0,
+    "fondo": "#1b2340",
+    "luz": { "color": "#ffe6c8", "energia": 0.75, "inclinacion": -42, "giro": -30 },
+    "ambiente": { "color": "#7d86b8", "energia": 0.38 }
+  },
+
+  "layers": [],
+
+  "credits": [
+    {
+      "obra": "Piscina municipal (escena 3D)",
+      "autor": "Proyecto Blender Cinemascope del equipo",
+      "licencia": "Propia del equipo",
+      "url": "",
+      "cambios": "Materiales de Cycles sustituidos por colores planos para el sombreado de tinta del juego; sin cámaras ni luces."
+    }
+  ]
+}

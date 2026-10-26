@@ -43,6 +43,11 @@ var animations: Dictionary = {}
 ## nunca.
 var command_moves: Array[MoveData] = []
 
+## Modelo 3D (prueba del paso a 3D): {"escena": ruta relativa al personaje,
+## "animaciones": {estado o movimiento: animación del modelo}}. Vacío = el
+## luchador se dibuja con su hoja de sprites, como siempre.
+var modelo_3d: Dictionary = {}
+
 
 static func from_dict(d: Dictionary) -> FighterStats:
 	var stats := FighterStats.new()
@@ -81,6 +86,10 @@ static func from_dict(d: Dictionary) -> FighterStats:
 		var raw: Variant = raw_animations[anim_name]
 		if raw is Dictionary:
 			stats.animations[StringName(anim_name)] = AnimationData.from_dict(raw)
+
+	var modelo: Variant = d.get("modelo_3d", null)
+	if modelo is Dictionary:
+		stats.modelo_3d = modelo
 
 	var raw_projectiles: Dictionary = d.get("projectiles", {})
 	for projectile_id: String in raw_projectiles.keys():

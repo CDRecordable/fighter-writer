@@ -9,12 +9,15 @@ extends Control
 
 const COMBATE := "res://scenes/seleccion.tscn"
 const BIBLIOTECA := "res://scenes/biblioteca.tscn"
+## Marca, no escena: monta la arena con el escenario 3D de prueba.
+const PRUEBA_3D := "prueba_3d"
 
 const ANCHO_PANEL := 196.0
 
 var _opciones := [
 	{ "texto": "COMBATE", "pie": "Elige escritor y a quién zurrarle", "escena": COMBATE },
 	{ "texto": "BIBLIOTECA", "pie": "Las fichas de los escritores", "escena": BIBLIOTECA },
+	{ "texto": "PRUEBA 3D", "pie": "Cristina en 3D en la piscina (en pruebas)", "escena": PRUEBA_3D },
 	{ "texto": "SALIR", "pie": "Hasta la próxima presentación", "escena": "" },
 ]
 var _seleccion: int = 0
@@ -55,6 +58,16 @@ func _elegir() -> void:
 	var escena := String(_opciones[_seleccion]["escena"])
 	if escena == "":
 		get_tree().quit()
+		return
+	if escena == PRUEBA_3D:
+		var arena: Node = load("res://scenes/combat_arena.tscn").instantiate()
+		arena.p1_override = "cristina_morales"
+		arena.p2_override = "perez_reverte"
+		arena.stage_override = "piscina"
+		var arbol := get_tree()
+		arbol.root.add_child(arena)
+		arbol.current_scene.queue_free()
+		arbol.current_scene = arena
 		return
 	get_tree().change_scene_to_file(escena)
 

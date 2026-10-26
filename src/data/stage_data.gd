@@ -67,6 +67,9 @@ var sky_parallax: float = 0.04
 ## Sol y mar procedurales (FondoProcedural). Vacíos = el escenario no tiene.
 var sun: Dictionary = {}
 var sea: Dictionary = {}
+## Escenario 3D (prueba del paso a 3D): escena .glb, dónde cae el plano del
+## combate dentro de ella, luz y fondo. Vacío = escenario 2D por capas.
+var modo_3d: Dictionary = {}
 var layers: Array[Layer] = []
 var credits: Array[Dictionary] = []
 
@@ -125,6 +128,9 @@ static func from_dict(stage_id: String, d: Dictionary) -> StageData:
 	var mar: Variant = d.get("sea", null)
 	if mar is Dictionary:
 		stage.sea = mar
+	var tres_d: Variant = d.get("modo_3d", null)
+	if tres_d is Dictionary:
+		stage.modo_3d = tres_d
 
 	for raw: Variant in d.get("layers", []):
 		if not (raw is Dictionary):

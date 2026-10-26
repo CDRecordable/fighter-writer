@@ -24,6 +24,12 @@
 
   "_comentario_hoja": "Hoja generada con PixelLab (base + 15 plantillas + 3 animaciones v3 a medida) y compuesta con tools/importar_pixellab.gd. El manifiesto de celdas está en sprites/cristina_pixellab.manifiesto.json. Ya no quedan préstamos: cada movimiento tiene su animación propia.",
 
+  "_comentario_modelo_3d": "Prueba del paso a 3D (octubre 2026). El modelo lo genera tools/blender/construir_cristina.py; las animaciones van a 60 fps, un fotograma por tick. Lo que no tenga animación propia usa la guardia. Un '-' delante reproduce la animación al revés (andar hacia atrás).",
+  "modelo_3d": {
+    "escena": "modelo/cristina.glb",
+    "animaciones": { "idle": "guardia", "walk_f": "andar", "walk_b": "-andar", "stand_lp": "jab" }
+  },
+
   "sprites": {
     "sheet": "sprites/cristina_pixellab.png",
     "cell": { "w": 128, "h": 128 },

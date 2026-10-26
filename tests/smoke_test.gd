@@ -103,6 +103,11 @@ func _test_escenarios_cubren_la_vista() -> void:
 	var media_alto := int(ProjectSettings.get_setting("display/window/size/viewport_height", 360)) / 2
 	for id in StageData.list_ids():
 		var stage := StageData.load_stage(id)
+		if not stage.modo_3d.is_empty():
+			# Escenario 3D: lo cubre la escena entera, no hay capas que medir.
+			_check("la escena 3D de %s existe" % id, ResourceLoader.exists(
+				"res://stages/%s/%s" % [id, String(stage.modo_3d.get("escena", ""))]))
+			continue
 		var json: Dictionary = JSON.parse_string(FileAccess.get_file_as_string("res://stages/%s/stage.json" % id))
 		_check("todas las capas de %s cargan (%d de %d)" % [id, stage.layers.size(), json.get("layers", []).size()],
 			stage.layers.size() == json.get("layers", []).size())

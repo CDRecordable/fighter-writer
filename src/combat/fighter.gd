@@ -87,6 +87,9 @@ var show_boxes: bool = false
 ## solución de verdad es el cambio de paleta, como en SF2, y es trabajo de arte
 ## de la Fase 2.
 var sprite_tint: Color = Color.WHITE
+## Falso cuando el luchador lo dibuja un modelo 3D (Vista3D): entonces aquí
+## solo se pintan las cajas de depuración.
+var dibujar_sprite: bool = true
 
 ## Un movimiento golpea una vez por cada hit_id: así los especiales de varios
 ## golpes conectan varias veces y los normales solo una.
@@ -607,9 +610,10 @@ func update_visual() -> void:
 
 
 func _draw() -> void:
-	_draw_sombra()
-	if not _draw_sprite():
-		_draw_gray_box()
+	if dibujar_sprite:
+		_draw_sombra()
+		if not _draw_sprite():
+			_draw_gray_box()
 	if show_boxes:
 		draw_debug_boxes()
 
